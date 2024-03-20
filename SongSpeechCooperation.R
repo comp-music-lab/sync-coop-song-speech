@@ -1,6 +1,10 @@
 #This code was used on 2024-03-19 to perform the analyses reported in:
 #Savage, P. E., et al. "A global test of synchrony and cooperation in song, speech, and chant" (in prep.)
 
+#It was adapted from code from the following publication:
+#Allen, M., Poggiali, D., Whitaker, K., Marshall, T. R., Van Langen, J., & Kievit, R. A. (2021). Raincloud plots: A multi-platform tool for robust data visualization. Wellcome Open Research, 4, 63. https://doi.org/10.12688/wellcomeopenres.15191.2
+
+
 #Set working directory
 setwd("~/Documents/GitHub/sync-coop-song-speech")
 
@@ -121,3 +125,52 @@ p11 <- ggplot(rep_data, aes(x = time, y = score, fill = group)) +
 ggsave('SynchronousVsAsynchronous.png', width = w, height = h)
 
 p11
+
+
+
+
+
+###
+################Potential code for GLMM suggested by Martin Lang (for somewhat different design/code - see https://github.com/compmusiclab/rhythm-coop for details):
+
+NROW(data)/4 # number of sessions
+data$sess <- c(rep(1:8,each=4)) # label each session
+
+hist(data$behavior) # histogram suggests data bounded on the upper boundary
+
+## My preferred approach - hierarchical beta regression
+library(glmmTMB)
+
+data$behav.p <- data$behavior/1000 # main DV as percentage
+data$behav.p <- (data$behav.p*31 + 0.5)/32 #adapt for beta regression (can't contain 0 and 1)
+
+summary(m1 <- glmmTMB(behav.p ~  (1|sess), family = "beta_family", data = data))
+summary(m2 <- glmmTMB(behav.p ~ group + (1|sess), family = "beta_family", data = data))
+summary(m3 <- glmmTMB(behav.p ~ group + sex + age + musicianship + (1|sess), family = "beta_family", data = data))
+
+library(DHARMa)
+
+simulationOutput = simulateResiduals(m3) # fit diagnostics
+plot(simulationOutput)
+
+library(effects)
+
+summary(allEffects(m3)) # predicted values
+
+## simpler LMM
+library(lme4)
+summary(m1 <- lmer(behavior ~ (1|sess),  data = data))
+summary(m2 <- lmer(behavior ~ group + (1|sess), data = data))
+summary(m3 <- lmer(behavior ~ group + sex + age + musicianship + (1|sess), data = data))
+
+summary(allEffects(m3)) # note upper 95% CI for group effect predicts values above 1000
+simulationOutput = simulateResiduals(m3)
+plot(simulationOutput)
+
+## simple OLS model
+summary(m2 <- lm(behavior ~ group, data = data))
+summary(m3 <- lm(behavior ~ group + sex + age + musicianship, data = data))
+
+summary(allEffects(m2))
+simulationOutput = simulateResiduals(m2)
+plot(simulationOutput) # this is the fit of your t-test
