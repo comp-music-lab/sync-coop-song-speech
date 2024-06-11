@@ -8,15 +8,12 @@
 #Set working directory
 setwd("~/Documents/GitHub/sync-coop-song-speech")
 
-knitr::opts_chunk$set(fig.width=6, fig.height=3, fig.path='figs/',
-                      echo=FALSE, warning=FALSE, message=FALSE)
-
 #Install and load packages
 if (!require(remotes)) { install.packages("remotes") } 
 remotes::install_github('jorvlan/raincloudplots') 
 
 packages <- c("ggplot2", "dplyr", "lavaan", "plyr", "cowplot", "rmarkdown", 
-              "readr", "caTools", "bitops", "xfun","psych")
+              "readr", "caTools", "bitops", "xfun","psych","knitr","forcats")
 
 if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
   install.packages(setdiff(packages, rownames(installed.packages())))  
@@ -28,6 +25,9 @@ library(readr)
 library(forcats)
 library(psych)
 library(tidyr)
+
+knitr::opts_chunk$set(fig.width=6, fig.height=3, fig.path='figs/',
+                      echo=FALSE, warning=FALSE, message=FALSE)
 
 source("R_rainclouds.R")
 source("summarySE.R")
@@ -59,12 +59,16 @@ rep_data$t3<-rowMeans(rep_data[,12:15])
 rep_data$t4<-rowMeans(rep_data[,16:19])
 rep_data$t5<-rowMeans(rep_data[,20:23])
 rep_data$t6<-rowMeans(rep_data[,24:27])
+
+#Keep only in-person singing/conversation + online recitation data 
+rep_data<-rep_data[-c(21:35),]
+
 data_long <- gather(rep_data, time, score, t1:t2, factor_key=TRUE)
 colnames(data_long)[1] <- "Participant"
 write.csv(data_long,"keydata_long.csv")
 
 rep_data<-read_csv(file="keydata_long.csv",
-                   col_types = cols(group = col_factor(levels = c("GS", "GC", "GR","NV")), 
+                   col_types = cols(group = col_factor(levels = c("GS", "GC", "GR")), 
                                     time = col_factor(levels = c("t1", "t2"))))
 rep_data<-rep_data[,-1]
 
@@ -86,53 +90,6 @@ p11 <- ggplot(rep_data, aes(x = time, y = score, fill = group)) +
   ylim(0,100)+ 
   ggtitle("pre-/post-intervention bonding")
 
-ggsave('4Conditions.png', width = w, height = h)
+ggsave('3Conditions.png', width = w, height = h)
 
 p11
-
-
-
-###
-################Potential code for GLMM suggested by Martin Lang (for somewhat different design/code - see https://github.com/compmusiclab/rhythm-coop for details):
-
-NROW(data)/4 # number of sessions
-data$sess <- c(rep(1:8,each=4)) # label each session
-
-hist(data$behavior) # histogram suggests data bounded on the upper boundary
-
-## My preferred approach - hierarchical beta regression
-library(glmmTMB)
-
-data$behav.p <- data$behavior/1000 # main DV as percentage
-data$behav.p <- (data$behav.p*31 + 0.5)/32 #adapt for beta regression (can't contain 0 and 1)
-
-summary(m1 <- glmmTMB(behav.p ~  (1|sess), family = "beta_family", data = data))
-summary(m2 <- glmmTMB(behav.p ~ group + (1|sess), family = "beta_family", data = data))
-summary(m3 <- glmmTMB(behav.p ~ group + sex + age + musicianship + (1|sess), family = "beta_family", data = data))
-
-library(DHARMa)
-
-simulationOutput = simulateResiduals(m3) # fit diagnostics
-plot(simulationOutput)
-
-library(effects)
-
-summary(allEffects(m3)) # predicted values
-
-## simpler LMM
-library(lme4)
-summary(m1 <- lmer(behavior ~ (1|sess),  data = data))
-summary(m2 <- lmer(behavior ~ group + (1|sess), data = data))
-summary(m3 <- lmer(behavior ~ group + sex + age + musicianship + (1|sess), data = data))
-
-summary(allEffects(m3)) # note upper 95% CI for group effect predicts values above 1000
-simulationOutput = simulateResiduals(m3)
-plot(simulationOutput)
-
-## simple OLS model
-summary(m2 <- lm(behavior ~ group, data = data))
-summary(m3 <- lm(behavior ~ group + sex + age + musicianship, data = data))
-
-summary(allEffects(m2))
-simulationOutput = simulateResiduals(m2)
-plot(simulationOutput) # this is the fit of your t-test
