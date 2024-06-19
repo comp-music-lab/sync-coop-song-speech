@@ -1,7 +1,8 @@
-#This code was used on 2024-05-20 to perform the analyses reported in:
-#Savage, P. E., et al. "A global test of synchrony and cooperation in group singing and speaking" (in prep.)
+#This code was used in June 2024 to perform the analyses reported in:
+#Savage, P. E., et al. "Does singing enhance cooperation more than speaking does? A global experimental Stage 1 Registered Report
+"
 
-#It was adapted from code from the following publication:
+#It was partially adapted from code from the following publication:
 #Allen, M., Poggiali, D., Whitaker, K., Marshall, T. R., Van Langen, J., & Kievit, R. A. (2021). Raincloud plots: A multi-platform tool for robust data visualization. Wellcome Open Research, 4, 63. https://doi.org/10.12688/wellcomeopenres.15191.2
 
 
