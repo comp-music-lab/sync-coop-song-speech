@@ -14,7 +14,7 @@ if (!require(remotes)) { install.packages("remotes") }
 remotes::install_github('jorvlan/raincloudplots') 
 
 packages <- c("ggplot2", "dplyr", "lavaan", "plyr", "cowplot", "rmarkdown", 
-              "readr", "caTools", "bitops", "xfun","psych","knitr","forcats")
+              "readr", "caTools", "bitops", "xfun","psych","knitr","forcats","GPArotation")
 
 if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
   install.packages(setdiff(packages, rownames(installed.packages())))  
@@ -53,6 +53,8 @@ rep_data<-read_csv(file="keydata.csv")
 
 #Internal consistency analysis of individual cooperation variables (Cronbach's alpha)
 psych::alpha(rep_data[,4:7])
+psych::omega(rep_data[,4:7])
+
 
 rep_data$t1<-rowMeans(rep_data[,4:7])
 rep_data$t2<-rowMeans(rep_data[,8:11])
