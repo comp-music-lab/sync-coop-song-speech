@@ -7,7 +7,7 @@
 
 
 #Set working directory
-setwd("~/Documents/GitHub/sync-coop-song-speech")
+setwd("/Users/psav050/Documents/GitHub/sync-coop-song-speech")
 
 #Install and load packages
 if (!require(remotes)) { install.packages("remotes") } 
