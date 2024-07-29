@@ -7,10 +7,10 @@
 
 
 #Set working directory
-setwd("/Users/danyapavlovich/Documents/GitHub/sync-coop-song-speech")
+setwd('/Users/danyapavlovich/Documents/GitHub/sync-coop-song-speech')
 
 #Install and load packages
-if (!require(remotes)) { install.packages("remotes") } 
+if (!require(remotes)) { install.packages('remotes') } 
 remotes::install_github('jorvlan/raincloudplots') 
 
 packages <- c("ggplot2", "dplyr", "lavaan", "plyr", "cowplot", "rmarkdown", 
