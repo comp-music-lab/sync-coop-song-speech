@@ -41,39 +41,32 @@ dir.create('../figs/tutorial_R/', showWarnings = FALSE)
 
 head(summary_simdat)
 
-#Specify data download location
-#file.data <- 'https://raw.githubusercontent.com/compmusiclab/rhythm-coop/master/RhythmPilotData(Fig3).csv'
-
 #Load and pre-process pilot data
-df<-read_csv(file='song_July 30, 2024_13.34.csv')
+df<-read_csv(file='https://raw.githubusercontent.com/comp-music-lab/sync-coop-song-speech/main/song_July%2030%2C%202024_13.34.csv') #read raw Qualtrics export file directly from GitHub
 colnames(df)<-df[1,] #change column names to make clear what they are
-df<-df[-c(1:2),c(17,19,29:31,48,54,56,58,62,66,68,70,73)] #exclude exploratory variables, keeping only social bonding variables for confirmatory analysis
+names(df)[names(df) == 'What is the "Group ID" listed on the screen?'] <- 'group' #Rename with shorter variable name
+df<-df[-c(1:2),] #remove non-data rows
+df<-df[-c(1:79),] #Keep only in-person singing/conversation + online recitation data (should eventually update this to a more automated exclusion algorithm based on start date, completion rate, etc.)
+df<-df[,c(17,19,29:31,48,54,56,58,62,66,68,70,73)] #exclude exploratory variables, keeping only social bonding variables for confirmatory analysis
 write.csv(df,'keydata.csv')
 rep_data<-read_csv(file='keydata.csv')
 
-#Keep only in-person singing/conversation + online recitation data 
-rep_data<-rep_data[-c(21:35),]
 
 #Internal consistency analysis of individual cooperation variables (Cronbach's alpha)
 psych::alpha(rep_data[,4:7])
 psych::omega(rep_data[,4:7])
 
-
-rep_data$t1<-rowMeans(rep_data[,4:7])
-rep_data$t2<-rowMeans(rep_data[,8:11])
-rep_data$t3<-rowMeans(rep_data[,12:15])
-rep_data$t4<-rowMeans(rep_data[,16:19])
-rep_data$t5<-rowMeans(rep_data[,20:23])
-rep_data$t6<-rowMeans(rep_data[,24:27])
-
-
+#Average individual scores into an overall cooperation score
+rep_data$t1<-rowMeans(rep_data[,4:7]) #pre-experiment baseline average cooperation
+rep_data$t2<-rowMeans(rep_data[,8:11]) #cooperation after 1st experiment condition
+rep_data$t3<-rowMeans(rep_data[,12:15]) #average cooperation at end of exploratory conditions
 
 data_long <- gather(rep_data, time, score, t1:t2, factor_key=TRUE)
 colnames(data_long)[1] <- 'Participant'
 write.csv(data_long,'keydata_long.csv')
 
 rep_data<-read_csv(file='keydata_long.csv',
-                   col_types = cols(group = col_factor(levels = c('GS', 'GC', 'GR')), 
+                   col_types = cols(group = col_factor(levels = c('S', 'C', 'R')), 
                                     time = col_factor(levels = c('t1', 't2'))))
 rep_data<-rep_data[,-1]
 
