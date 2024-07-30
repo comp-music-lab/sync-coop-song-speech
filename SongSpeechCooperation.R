@@ -45,10 +45,14 @@ head(summary_simdat)
 #file.data <- 'https://raw.githubusercontent.com/compmusiclab/rhythm-coop/master/RhythmPilotData(Fig3).csv'
 
 #Load and pre-process pilot data
-df<-read_csv(file='song_July 30, 2024_11.26.csv')
-df<-df[-c(1:2),c(17,19,29:31,48,54,56,58,62,63,66,68,70,73)]
+df<-read_csv(file='song_July 30, 2024_13.34.csv')
+colnames(df)<-df[1,] #change column names to make clear what they are
+df<-df[-c(1:2),c(17,19,29:31,48,54,56,58,62,66,68,70,73)] #exclude exploratory variables, keeping only social bonding variables for confirmatory analysis
 write.csv(df,'keydata.csv')
 rep_data<-read_csv(file='keydata.csv')
+
+#Keep only in-person singing/conversation + online recitation data 
+rep_data<-rep_data[-c(21:35),]
 
 #Internal consistency analysis of individual cooperation variables (Cronbach's alpha)
 psych::alpha(rep_data[,4:7])
@@ -62,8 +66,7 @@ rep_data$t4<-rowMeans(rep_data[,16:19])
 rep_data$t5<-rowMeans(rep_data[,20:23])
 rep_data$t6<-rowMeans(rep_data[,24:27])
 
-#Keep only in-person singing/conversation + online recitation data 
-rep_data<-rep_data[-c(21:35),]
+
 
 data_long <- gather(rep_data, time, score, t1:t2, factor_key=TRUE)
 colnames(data_long)[1] <- 'Participant'
