@@ -45,8 +45,8 @@ head(summary_simdat)
 #file.data <- 'https://raw.githubusercontent.com/compmusiclab/rhythm-coop/master/RhythmPilotData(Fig3).csv'
 
 #Load and pre-process pilot data
-df<-read_csv(file='QualtricsPilotData_Merged(2024-05-20).csv')
-df<-df[-c(1:2),c(17,19,40:46,52,54:56,62:65,71:74,80:83,89)]
+df<-read_csv(file='song_July 30, 2024_11.26.csv')
+df<-df[-c(1:2),c(17,19,29:31,48,54,56,58,62,63,66,68,70,73)]
 write.csv(df,'keydata.csv')
 rep_data<-read_csv(file='keydata.csv')
 
