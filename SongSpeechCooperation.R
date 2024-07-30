@@ -46,7 +46,7 @@ df<-read_csv(file='https://raw.githubusercontent.com/comp-music-lab/sync-coop-so
 colnames(df)<-df[1,] #change column names to make clear what they are
 names(df)[names(df) == 'What is the "Group ID" listed on the screen?'] <- 'group' #Rename with shorter variable name
 df<-df[-c(1:2),] #remove non-data rows
-df<-df[-c(1:79),] #Keep only in-person singing/conversation + online recitation data (should eventually update this to a more automated exclusion algorithm based on start date, completion rate, etc.)
+df<-df[-c(1:79),] #Keep only in-person singing/conversation data (should eventually update this to a more automated exclusion algorithm based on start date, completion rate, etc.)
 df<-df[,c(17,19,29:31,48,54,56,58,62,66,68,70,73)] #exclude exploratory variables, keeping only social bonding variables for confirmatory analysis
 write.csv(df,'keydata.csv')
 rep_data<-read_csv(file='keydata.csv')
