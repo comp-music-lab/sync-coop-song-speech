@@ -47,6 +47,7 @@ colnames(df)<-df[1,] #change column names to make clear what they are
 names(df)[names(df) == 'What is the "Group ID" listed on the screen?'] <- 'group' #Rename with shorter variable name
 df<-df[-c(1:2),] #remove non-data rows
 df<-df[-c(1:79),] #Keep only in-person singing/conversation data (should eventually update this to a more automated exclusion algorithm based on start date, completion rate, etc.)
+df<-df[-c(6),] #Exclude duplicated participant data 
 df<-df[,c(17,19,29:31,48,54,56,58,62,66,68,70,73)] #exclude exploratory variables, keeping only social bonding variables for confirmatory analysis
 write.csv(df,'keydata.csv')
 rep_data<-read_csv(file='keydata.csv')
@@ -78,7 +79,7 @@ head(sumrepdat)
 
 p11 <- ggplot(rep_data, aes(x = time, y = score, fill = group)) +
   geom_flat_violin(aes(fill = group),position = position_nudge(x = .1, y = 0), adjust = 1.5, trim = FALSE, alpha = .5, colour = NA)+
-  geom_point(aes(x = as.numeric(time)-.15, y = score, colour = group),position = position_jitter(width = .05), size = .25, shape = 20)+
+  geom_point(aes(x = as.numeric(time)-.15, y = score, colour = group),position = position_jitter(width = .05), size = 1.5, shape = 20)+
   geom_boxplot(aes(x = time, y = score, fill = group),outlier.shape = NA, alpha = .5, width = .1, colour = 'black')+
   geom_line(data = sumrepdat, aes(x = as.numeric(time)+.1, y = score_mean, group = group, colour = group), linetype = 3)+
   geom_point(data = sumrepdat, aes(x = as.numeric(time)+.1, y = score_mean, group = group, colour = group), shape = 18) +
