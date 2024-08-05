@@ -58,17 +58,17 @@ psych::alpha(rep_data[,4:7])
 psych::omega(rep_data[,4:7])
 
 #Average individual scores into an overall cooperation score
-rep_data$t1<-rowMeans(rep_data[,4:7]) #pre-experiment baseline average cooperation
-rep_data$t2<-rowMeans(rep_data[,8:11]) #cooperation after 1st experiment condition
+rep_data$Pre_Experiment<-rowMeans(rep_data[,4:7]) #pre-experiment baseline average cooperation
+rep_data$Post_Experiment<-rowMeans(rep_data[,8:11]) #cooperation after 1st experiment condition
 rep_data$t3<-rowMeans(rep_data[,12:15]) #average cooperation at end of exploratory conditions
 
-data_long <- gather(rep_data, time, score, t1:t2, factor_key=TRUE)
+data_long <- gather(rep_data, time, score, Pre_Experiment:Post_Experiment, factor_key=TRUE)
 colnames(data_long)[1] <- 'Participant'
 write.csv(data_long,'keydata_long.csv')
 
 rep_data<-read_csv(file='keydata_long.csv',
                    col_types = cols(group = col_factor(levels = c('S', 'C', 'R')), 
-                                    time = col_factor(levels = c('t1', 't2'))))
+                                    time = col_factor(levels = c('Pre_Experiment', 'Post_Experiment'))))
 rep_data<-rep_data[,-1]
 
 
