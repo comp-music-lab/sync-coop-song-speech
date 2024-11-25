@@ -1,4 +1,4 @@
-#This code was used in June 2024 to perform the analyses reported in:
+#This code was used in November 2024 to perform the analyses reported in:
 #Savage, P. E., et al. "Does singing enhance cooperation more than speaking does? A global experimental Stage 1 Registered Report
 
 #It was partially adapted from code from the following publication:
@@ -6,7 +6,7 @@
 
 
 #Set working directory
-setwd('/Users/danyapavlovich/Documents/GitHub/sync-coop-song-speech')
+setwd('/Users/chibagakuto/Documents/GitHub/sync-coop-song-speech')
 
 #Install and load packages
 if (!require(remotes)) { install.packages('remotes') } 
@@ -42,15 +42,15 @@ dir.create('../figs/tutorial_R/', showWarnings = FALSE)
 head(summary_simdat)
 
 #Load and pre-process pilot data
-df<-read_csv(file='https://raw.githubusercontent.com/comp-music-lab/sync-coop-song-speech/main/song_July%2030%2C%202024_13.34.csv') #read raw Qualtrics export file directly from GitHub
+df<-read_csv(file='/Users/chibagakuto/Documents/GitHub/sync-coop-song-speech/pilotdata_jp_241117.csv') #read raw Qualtrics export file directly from GitHub
 colnames(df)<-df[1,] #change column names to make clear what they are
-names(df)[names(df) == 'What is the "Group ID" listed on the screen?'] <- 'group' #Rename with shorter variable name
-df<-df[-c(1:2),] #remove non-data rows
-df<-df[-c(1:79),] #Keep only in-person singing/conversation data (should eventually update this to a more automated exclusion algorithm based on start date, completion rate, etc.)
-df<-df[-c(6),] #Exclude duplicated participant data 
+names(df)[names(df) == "画面に表示されている 'Group ID' は何ですか。"] <- 'group' #Rename with shorter variable name
+df<-df[-c(1:101,123:139),] #remove non-data rows
+#df<-df[-c(1:79),] #Keep only in-person singing/conversation data (should eventually update this to a more automated exclusion algorithm based on start date, completion rate, etc.)
+#df<-df[-c(6),] #Exclude duplicated participant data 
 df<-df[,c(17,19,29:31,48,54,56,58,62,66,68,70,73)] #exclude exploratory variables, keeping only social bonding variables for confirmatory analysis
-write.csv(df,'keydata.csv')
-rep_data<-read_csv(file='keydata.csv')
+write.csv(df,'keydata_jp_241117.csv')
+rep_data<-read_csv(file='keydata_jp_241117.csv')
 
 
 #Internal consistency analysis of individual cooperation variables (Cronbach's alpha)
@@ -64,9 +64,9 @@ rep_data$t3<-rowMeans(rep_data[,12:15]) #average cooperation at end of explorato
 
 data_long <- gather(rep_data, time, score, Pre_Experiment:Post_Experiment, factor_key=TRUE)
 colnames(data_long)[1] <- 'Participant'
-write.csv(data_long,'keydata_long.csv')
+write.csv(data_long,'keydata_long_jp_241117.csv')
 
-rep_data<-read_csv(file='keydata_long.csv',
+rep_data<-read_csv(file='keydata_long_jp_241117.csv',
                    col_types = cols(group = col_factor(levels = c('S', 'C', 'R')), 
                                     time = col_factor(levels = c('Pre_Experiment', 'Post_Experiment'))))
 rep_data<-rep_data[,-1]
@@ -89,6 +89,6 @@ p11 <- ggplot(rep_data, aes(x = time, y = score, fill = group)) +
   ylim(0,100)+ 
   ggtitle('pre-/post-intervention bonding')
 
-ggsave('3Conditions.png', width = w, height = h)
+ggsave('3Conditions_jp.png', width = w, height = h)
 
 p11
