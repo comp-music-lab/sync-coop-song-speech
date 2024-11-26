@@ -1,4 +1,4 @@
-#This code was used in June 2024 to perform the analyses reported in:
+#This code was used in November 2024 to perform the analyses reported in:
 #Savage, P. E., et al. "Does singing enhance cooperation more than speaking does? A global experimental Stage 1 Registered Report
 
 #It was partially adapted from code from the following publication:
@@ -43,7 +43,6 @@ head(summary_simdat)
 
 #Load and pre-process pilot data
 df<-read_csv(file='https://raw.githubusercontent.com/comp-music-lab/sync-coop-song-speech/refs/heads/main/song_August%2021%2C%202024_16.12.csv') #read raw Qualtrics export file directly from GitHub
-#df<-read_csv(file="song_November 25, 2024_16.18.csv") #read raw Qualtrics export file from local folder
 colnames(df)<-df[1,] #change column names to make clear what they are
 names(df)[names(df) == 'What is the "Group ID" listed on the screen?'] <- 'group' #Rename with shorter variable name
 df<-df[-c(1:2),] #remove non-data rows
@@ -56,10 +55,26 @@ df<-df[,c(17,19,29:31,48,54,56,58,62,66,68,70,73)] #exclude exploratory variable
 write.csv(df,'keydata.csv')
 rep_data<-read_csv(file='keydata.csv')
 
+#Rename variables:
+names(rep_data)[names(rep_data) == 'How much do you agree with the following statements? - "I feel like I am on the same team with the other participants"...4'] <- 'team'
+names(rep_data)[names(rep_data) == 'How much do you agree with the following statements? - "I feel like I am on the same team with the other participants"...9'] <- 'team'
+names(rep_data)[names(rep_data) == 'How much do you agree with the following statements? - "I feel like I am on the same team with the other participants"...13'] <- 'team'
+names(rep_data)[names(rep_data) == 'How much do you agree with the following statements? - “I think I am similar to the other participants’’...5'] <- 'similar'
+names(rep_data)[names(rep_data) == 'How much do you agree with the following statements? - “I think I am similar to the other participants’’...10'] <- 'similar'
+names(rep_data)[names(rep_data) == 'How much do you agree with the following statements? - “I think I am similar to the other participants’’...14'] <- 'similar'
+names(rep_data)[names(rep_data) == 'How much do you agree with the following statements? - ‘‘I trust the other participants”...6'] <- 'trust'
+names(rep_data)[names(rep_data) == 'How much do you agree with the following statements? - ‘‘I trust the other participants”...8'] <- 'trust'
+names(rep_data)[names(rep_data) == 'How much do you agree with the following statements? - ‘‘I trust the other participants”...12'] <- 'trust'
+names(rep_data)[names(rep_data) == 'How close do you feel to all the other participants? - 1...7'] <- 'close'
+names(rep_data)[names(rep_data) == 'How close do you feel to all the other participants? - 1...11'] <- 'close'
+names(rep_data)[names(rep_data) == 'How close do you feel to all the other participants? - 1...15'] <- 'close'
+
+#combine same variables to measure consistency
+bind<-rbind(rep_data[,4:7],rep_data[,8:11],rep_data[,12:15])
 
 #Internal consistency analysis of individual cooperation variables (Cronbach's alpha)
-psych::alpha(rep_data[,4:7])
-psych::omega(rep_data[,4:7])
+psych::alpha(bind)
+psych::omega(bind)
 
 #Average individual scores into an overall cooperation score
 rep_data$Pre_Experiment<-rowMeans(rep_data[,4:7]) #pre-experiment baseline average cooperation
