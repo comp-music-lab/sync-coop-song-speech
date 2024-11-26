@@ -3,4 +3,4 @@ Savage, P. E., Ampiah-Bonney, A., Arabadjiev, A., Arhine, A., Ariza, J. F., Bamf
 
 To replicate the analyses, clone this repository (e.g., using GitHub Desktop) and run the "SongSpeechCooperation.R" script using R (or R Studio).
 
-This script was run on a pilot data file downloaded from Qualtrics ("QualtricsPilotData_Merged(2024-05-20).csv"), and can be used as is to replicate this analysis (including data pre-processing of this full raw data file to create the "keydata.csv" file). However it is also designed to be re-used for the full Stage 2 data once collected after replacing the "QualtricsPilotData_Merged(2024-05-20).csv" with the full data file downloaded from Qualtrics after full data collection.
+This script was run on a pilot data file downloaded from Qualtrics ("song_August 21, 2024_16.12.csv"), and can be used as is to replicate this analysis (including data pre-processing of this full raw data file to create the "keydata.csv" file). However it is also designed to be re-used for the full Stage 2 data once collected after replacing the "song_August 21, 2024_16.12.csv" with the full data file downloaded from Qualtrics after full data collection.
