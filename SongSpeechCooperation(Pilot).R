@@ -1,4 +1,4 @@
-#This code was used in November 2024 to perform the analyses reported in:
+#This code was used in November 2024 to perform the pilot data analyses reported in:
 #Savage, P. E., et al. "Does singing enhance cooperation more than speaking does? A global experimental Stage 1 Registered Report
 
 #It was partially adapted from code from the following publication:
@@ -6,7 +6,7 @@
 
 
 #Set working directory
-setwd('/Users/psav050/Documents/GitHub/sync-coop-song-speech')
+setwd('/Users/psav050/Documents/GitHub/sync-coop-song-speech') #Please edit to point to your own locally cloned repository directory
 
 #Install and load packages
 if (!require(remotes)) { install.packages('remotes') } 
