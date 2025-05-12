@@ -61,11 +61,9 @@ df<-df[-c(1:2),] #remove non-data rows
 df<- subset(df, `Response Type`=="IP Address") #Remove test ("Preview") responses
 df$`IP Address`="NA"#Remove IP address data
 write.csv(df,'stage2data.csv')
-df<-read_csv(file='stage2data.csv')
-df <- df[-1] #remove ID row
-
+##Start here to reproduce analyses
 df<-read_csv(file='https://raw.githubusercontent.com/comp-music-lab/sync-coop-song-speech/refs/heads/main/stage2data.csv') #read full raw data file of Stage 2 participant data directly from GitHub
-
+df <- df[-1] #remove ID row
 df<-df[,c(19,20,22,24,26,28,29,31,33,35,37,40,41,42,44)] #keep only social bonding and key variables for confirmatory analysis
 
 write.csv(df,'keydata.csv')
