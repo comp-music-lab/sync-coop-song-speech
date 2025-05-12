@@ -3,4 +3,4 @@ Savage, P. E., Ampiah-Bonney, A., Arabadjiev, A., Arhine, A., Ariza, J. F., Arne
 
 To replicate the analyses, clone this repository (e.g., using GitHub Desktop) and run one of the following scripts using R (or R Studio):
 1) "SongSpeechCooperation(Pilot).R" (this will replicate the pilot analyses reported in the Stage 1 protocol)
-2) "SongSpeechCooperationStage2.R" (this will replicate the full Stage 2 data analyses [preliminary - Stage 2 data collection still in progress]). [NB: this script incorporates some minor changes in the data collection and analysis made during the Stage 1 protocol peer review process, so is not identical to the pilot data analysis script above]
+2) "SongSpeechBondingStage2.R" (this will replicate the full Stage 2 data analyses [preliminary - Stage 2 data collection still in progress]). [NB: this script incorporates some minor changes in the data collection and analysis made during the Stage 1 protocol peer review process, so is not identical to the pilot data analysis script above]
