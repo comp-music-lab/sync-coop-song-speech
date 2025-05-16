@@ -44,14 +44,14 @@ head(summary_simdat)
 #Load and pre-process data (NB: Full raw files with pilot participant data not shared publicly, just shown for transparency - you can reproduce this analysis starting )
 df<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/SpeechSong_London_Chinese_March 21, 2025_20.44_unifiedrows.csv') #import from separate Qualtrics account output - not shared publicly
 df<-df[-c(12,13),] #Exclude duplicated participant data (change from hard-coding?)
-d<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/song_May 15, 2025_20.40.csv')#import from main Qualtrics account output - not shared publicly
-d<-d[-c(1:244,276:304),]#Exclude pilot data (change from hard-coding?)
+d<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/song_May 16, 2025_23.03.csv')#import from main Qualtrics account output - not shared publicly
+d<-d[-c(1:244,276:304,320:322),]#Exclude pilot data (change from hard-coding?)
 d[18,19]="R" #fix participant entry error 
 d[1,20]="10" #fix participant entry error
 d[14,20]="6" #fix participant entry error
 d[36,20]="2" #fix participant entry error
 d[43,20]="2" #fix participant entry error
-d<-d[-c(21),] #Exclude duplicated participant data (change from hard-coding?)
+d<-d[-c(21,74),] #Exclude duplicated participant data (change from hard-coding?)
 df<-rbind(df,d)
 colnames(df)<-df[1,] #change column names to make clear what they are
 #Rename with shorter variable names
