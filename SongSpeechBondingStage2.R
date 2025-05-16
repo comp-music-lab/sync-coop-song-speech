@@ -44,11 +44,13 @@ head(summary_simdat)
 #Load and pre-process data (NB: Full raw files with pilot participant data not shared publicly, just shown for transparency - you can reproduce this analysis starting )
 df<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/SpeechSong_London_Chinese_March 21, 2025_20.44_unifiedrows.csv') #import from separate Qualtrics account output - not shared publicly
 df<-df[-c(12,13),] #Exclude duplicated participant data (change from hard-coding?)
-d<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/song_May 7, 2025_21.02.csv')#import from main Qualtrics account output - not shared publicly
-d<-d[-c(1:244),] #Exclude pilot data before Stage 2 data collection (change from hard-coding?)
+d<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/song_May 15, 2025_20.40.csv')#import from main Qualtrics account output - not shared publicly
+d<-d[-c(1:244,276:304),]#Exclude pilot data (change from hard-coding?)
 d[18,19]="R" #fix participant entry error 
 d[1,20]="10" #fix participant entry error
 d[14,20]="6" #fix participant entry error
+d[36,20]="2" #fix participant entry error
+d[43,20]="2" #fix participant entry error
 d<-d[-c(21),] #Exclude duplicated participant data (change from hard-coding?)
 df<-rbind(df,d)
 colnames(df)<-df[1,] #change column names to make clear what they are
@@ -62,6 +64,7 @@ df<- subset(df, `Response Type`=="IP Address") #Remove test ("Preview") response
 df$`IP Address`="NA"#Remove IP address data
 write.csv(df,'stage2data.csv')
 ##Start here to reproduce analyses
+#df<-read_csv(file='stage2data.csv') #use this instead of GitHub download code below if running directly from computer
 df<-read_csv(file='https://raw.githubusercontent.com/comp-music-lab/sync-coop-song-speech/refs/heads/main/stage2data.csv') #read full raw data file of Stage 2 participant data directly from GitHub
 df <- df[-1] #remove ID row
 df<-df[,c(19,20,22,24,26,28,29,31,33,35,37,40,41,42,44)] #keep only social bonding and key variables for confirmatory analysis
