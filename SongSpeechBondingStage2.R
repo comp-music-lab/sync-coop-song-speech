@@ -44,7 +44,7 @@ head(summary_simdat)
 #Load and pre-process data (NB: Full raw files with pilot participant data not shared publicly, just shown for transparency - you can reproduce this analysis starting )
 df<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/SpeechSong_London_Chinese_March 21, 2025_20.44_unifiedrows.csv') #import from separate Qualtrics account output - not shared publicly
 df<-df[-c(12,13),] #Exclude duplicated participant data (change from hard-coding?)
-d<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/song_May 16, 2025_23.03.csv')#import from main Qualtrics account output - not shared publicly
+d<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/song_May 20, 2025_15.38.csv')#import from main Qualtrics account output - not shared publicly
 d<-d[-c(1:244,276:304,320:322),]#Exclude pilot data (change from hard-coding?)
 d[18,19]="R" #fix participant entry error 
 d[1,20]="10" #fix participant entry error
@@ -59,7 +59,6 @@ names(df)[names(df) == 'What is the "Group ID" listed on the screen?'] <- 'group
 names(df)[names(df) == "What is the \"Participant ID\" number listed on your consent form?"] <- 'ID'
 names(df)[names(df) == "How much do you agree with the following statements? - Please rate “strongly agree” to show you are paying attention"] <- 'attention'
 df<-df[-c(1:2),] #remove non-data rows
-#df<- subset(df, Finished=="True") #Reinstate to remove participants who did not finish - but check capitalisation if using this
 df<- subset(df, `Response Type`=="IP Address") #Remove test ("Preview") responses
 df$`IP Address`="NA"#Remove IP address data
 write.csv(df,'stage2data.csv')
