@@ -44,8 +44,8 @@ head(summary_simdat)
 #Load and pre-process data (NB: Full raw files with pilot participant data not shared publicly, just shown for transparency - you can reproduce this analysis starting )
 df<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/SpeechSong_London_Chinese_March 21, 2025_20.44_unifiedrows.csv') #import from separate Qualtrics account output - not shared publicly
 df<-df[-c(12,13),] #Exclude duplicated participant data (change from hard-coding?)
-d<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/song_May 22, 2025_14.17.csv')#import from main Qualtrics account output - not shared publicly
-d<-d[-c(1:244,276:304,320:322,384:392,407),]#Exclude pilot data (change from hard-coding?)
+d<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/song_May 28, 2025_11.48.csv')#import from main Qualtrics account output - not shared publicly
+d<-d[-c(1:244,276:304,320:322,384:392,407,417:421),]#Exclude pilot data (change from hard-coding?)
 d[18,19]="R" #fix participant entry error 
 d[1,20]="10" #fix participant entry error
 d[14,20]="6" #fix participant entry error
@@ -62,6 +62,7 @@ names(df)[names(df) == "How much do you agree with the following statements? - P
 df<-df[-c(1:2),] #remove non-data rows
 df<- subset(df, `Response Type`=="IP Address") #Remove test ("Preview") responses
 df$`IP Address`="NA"#Remove IP address data
+df$`Response ID`="NA"#Remove Response ID data
 write.csv(df,'stage2data.csv')
 ##Start here to reproduce analyses
 #df<-read_csv(file='stage2data.csv') #use this instead of GitHub download code below if running directly from computer
