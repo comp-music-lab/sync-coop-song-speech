@@ -1,8 +1,34 @@
 ### Load data ###
-datafilename = "keydata_long_20250517.csv"
-rawdatafilename = "stage2data_20250517.csv"
+datafilename = "keydata_long_20250525.csv"
+rawdatafilename = "stage2data_20250525.csv"
 source("h_datalist.R")
 datalist <- h_datalist(datafilename, rawdatafilename)
+
+# test 1
+'
+datalist$y[datalist$X[,2] == 1] = datalist$y[datalist$X[,2] == 1] + 0.0
+'
+
+# test 2
+'
+be_sim = matrix(c(40, 10, 5, 3), ncol=1)
+sgm_sim = 14
+s_sim = c(10, 6)
+u_sim = matrix(c(rnorm(datalist$M, 0, s_sim[1]), rnorm(datalist$N, 0, s_sim[2])), ncol=1)
+y_sim = datalist$X%*%be_sim + datalist$Z%*%u_sim + rnorm(dim(datalist$X)[1], 0, sgm_sim)
+datalist$y = c(y_sim)
+'
+
+# test 3
+'
+library(lme4)
+df = data.frame(y = datalist$y, x_song = datalist$X[,2], x_conv = datalist$X[,3],
+                x_reci = datalist$X[,4],
+                z_coho = sapply(1:dim(datalist$Z)[1], function(i){which(datalist$Z[i,1:datalist$M] == 1)}),
+                z_indi = sapply(1:dim(datalist$Z)[1], function(i){which(datalist$Z[i,(datalist$M+1):(datalist$M+datalist$N)] == 1)})
+)
+fm1 <- lmer(y ~ x_song + x_conv + x_reci + (1 | z_coho) + (1 | z_indi), df)
+'
 
 ### Run analysis ###
 # Use Chuu et al. (2021, AISTATS)'s method instead of the stepping-stone sampling algorithm described in the manuscript
@@ -131,15 +157,17 @@ for(i in 1:2) {
 g <- ggarrange(plotlist=ggplotlist, ncol=2, nrow=1)
 g <- annotate_figure(g,
                      top=text_grob(
-                       paste("Model comparison (BF", paste(modelname, collapse=""), " = ", sprintf("%0.2f", exp(lnZ[1] - lnZ[2])), ")", sep=""), 
+                       paste("Model comparison (log10BF", paste(modelname, collapse=""), " = ", sprintf("%0.2f", (lnZ[1] - lnZ[2])/log(10)), ")", sep=""), 
                      face="bold", size=16))
 
 ggexport(g, filename="./figure/confirmatory_analysis_01_BF.png")
 
+plot(g)
+
 ### Additional analysis ###
 '
-traceplot(modellist[[1]], pars=c("sgm", "s_1", "s_2", "be", "g"), inc_warmup=FALSE, nrow=2)
-traceplot(modellist[[2]], pars=c("sgm", "s_1", "s_2", "be", "g"), inc_warmup=FALSE, nrow=2)
+traceplot(modellist[[1]], pars=c("sgm", "s_1", "s_2", "be", "g"), inc_warmup=TRUE, nrow=2)
+traceplot(modellist[[2]], pars=c("sgm", "s_1", "s_2", "be", "g"), inc_warmup=TRUE, nrow=2)
 
 scorediff <- t(sapply(unique(datalist$data$Participant), function(i){
   data.frame(Participant = i, 

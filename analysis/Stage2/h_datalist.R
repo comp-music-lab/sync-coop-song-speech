@@ -27,6 +27,7 @@ h_datalist <- function(datafilename, rawdatafilename) {
       data$locationinfo[data$Participant == data$Participant[i]] = rawdata$What.city.and.country.are.you.performing.this.experiment.in.[j]
       data$latitude[data$Participant == data$Participant[i]] = rawdata$Location.Latitude[j]
       data$longitude[data$Participant == data$Participant[i]] = rawdata$Location.Longitude[j]
+      data$starttime[data$Participant == data$Participant[i]] = rawdata$Start.Date[j]
     }
   }
   data$site = 0
@@ -35,6 +36,8 @@ h_datalist <- function(datafilename, rawdatafilename) {
   data$site[data$Participant %in% data$Participant[48:61]] = 3 # Kanagawa, Japan
   data$site[data$Participant %in% c(data$Participant[62:75], data$Participant[91:98])] = 4 # Cluj-Napoca, România 
   data$site[data$Participant %in% data$Participant[76:90]] = 5 # New Delhi, India
+  data$site[data$Participant %in% data$Participant[99:117]] = 6 # Auckland, New Zealand (Chinese cohorts)
+  data$site[data$Participant %in% c(data$Participant[118:138])] = 7 # Auckland, New Zealand
   
   data$cohort = as.numeric(factor(paste(data$site, data$group, sep="")))
   data$idx_song = as.numeric(data$time == "Post_Experiment" & data$group == "S")

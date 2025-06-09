@@ -73,4 +73,5 @@ model {
   sgm ~ student_t(2, 0, 1000);
   be ~ multi_normal_prec(m, Lmd);
   target += log((be_q - m_q)'*(be_q - m_q)/trace(Sgm_q)) + beta*normal_lpdf(y | mu, sgm);
+  //target += beta*normal_lpdf(y | mu, sgm);
 }
