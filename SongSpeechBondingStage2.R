@@ -52,6 +52,11 @@ d[14,20]="6" #fix participant entry error
 d[36,20]="2" #fix participant entry error
 d[43,20]="2" #fix participant entry error
 d[114,20]="1" #fix participant entry error
+d[116,20]="6" #fix participant entry error
+d[118,20]="2" #fix participant entry error
+d[123,20]="1" #fix participant entry error
+d[124,20]="8" #fix participant entry error
+
 d<-d[-c(21,74),] #Exclude duplicated participant data (change from hard-coding?)
 df<-rbind(df,d)
 colnames(df)<-df[1,] #change column names to make clear what they are
