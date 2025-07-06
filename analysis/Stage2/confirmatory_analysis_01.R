@@ -1,6 +1,6 @@
 ### Load data ###
-datafilename = "keydata_long_20250525.csv"
-rawdatafilename = "stage2data_20250525.csv"
+datafilename = "keydata_long_20250624.csv"
+rawdatafilename = "stage2data_20250624.csv"
 source("h_datalist.R")
 datalist <- h_datalist(datafilename, rawdatafilename)
 
@@ -38,10 +38,12 @@ library(rstan)
 library(rpart)
 
 modellist <- vector(mode="list", length=2)
+possamplelist <- vector(mode="list", length=2)
 lnZ = c(0, 0)
 stanfile = c("lmm_ssnlauip.stan", "lmm_ssauip.stan")
 model_H0 = c(0, 1)
 q = 2
+numchains = 4
 
 h_lnhalft <- function(x, nu, s) {
   log(2) + log(gamma((nu+1)/2)) - log(gamma(nu/2)) - log(sqrt(nu*pi*s^2)) + (-(nu+1)/2)*log(1 + 1/nu*x^2/s^2)
@@ -56,18 +58,69 @@ source("h_mvnlik.R")
 for(i in 1:2) {
   cat(paste(Sys.time(), ": i = ", i, "\n", sep=""))
   standata <- h_standata(datalist, model_H0[i], q)
-  fit_pos <- stan(file = stanfile[i], data = standata, chains = 4, 
-                  warmup = 1000, iter = 2000, cores = 4, refresh = 0)
+  fit_pos <- stan(file = stanfile[i], data = standata, chains = numchains, 
+                  warmup = 1000, iter = 2000, cores = 4, refresh = 0,
+                  control = list(adapt_gamma=0.05, adapt_kappa=0.75, adapt_t0=10, adapt_delta=0.80, max_treedepth=10, adapt_term_buffer=50))
+
   print(fit_pos, pars=c("sgm", "s_1", "s_2", "be", "g"))
   modellist[[i]] <- fit_pos
   
-  posterior_samples = as.data.frame(fit_pos)
-  sgm_pos = t(as.matrix(posterior_samples["sgm"]))
-  s_1_pos = t(as.matrix(posterior_samples["s_1"]))
-  s_2_pos = t(as.matrix(posterior_samples["s_2"]))
-  be_pos = t(as.matrix(posterior_samples[sapply(1:standata$p, function(x){paste("be[", x, "]", sep="")})]))
-  r_pos = t(as.matrix(posterior_samples["r"]))
+  if(model_H0[i] == 0) {
+    source("chain_stacking.R")
+    stan_model_object = stan_model("stacking_opt.stan")
+    stack_obj = chain_stack(fits=fit_pos, lambda=1.0001, log_lik_char="log_lik")
+    print(stack_obj$chain_weights)
     
+    sgm_pos = t(mixture_draws(individual_draws=drop(extract(fit_pos, permuted=FALSE, pars="sgm")), weight=stack_obj$chain_weights))
+    s_1_pos = t(mixture_draws(individual_draws=drop(extract(fit_pos, permuted=FALSE, pars="s_1")), weight=stack_obj$chain_weights))
+    s_2_pos = t(mixture_draws(individual_draws=drop(extract(fit_pos, permuted=FALSE, pars="s_2")), weight=stack_obj$chain_weights))
+    be_pos = extract(fit_pos, permuted=FALSE, pars="be")
+    be_pos = t(sapply(1:numchains, function(i) {mixture_draws(individual_draws=be_pos[,,i], weight=stack_obj$chain_weights)}))
+    r_pos = t(mixture_draws(individual_draws=drop(extract(fit_pos, permuted=FALSE, pars="r")), weight=stack_obj$chain_weights))
+  } else {
+    posterior_samples = as.data.frame(fit_pos)
+    sgm_pos = t(unname(as.matrix(posterior_samples["sgm"])))
+    s_1_pos = t(unname(as.matrix(posterior_samples["s_1"])))
+    s_2_pos = t(unname(as.matrix(posterior_samples["s_2"])))
+    be_pos = t(unname(as.matrix(posterior_samples[sapply(1:standata$p, function(x){paste("be[", x, "]", sep="")})])))
+    r_pos = t(unname(as.matrix(posterior_samples["r"])))
+  }
+  
+  possamplelist[[i]] = rbind(
+    data.frame(varname="sgm", samples=t(sgm_pos)),
+    data.frame(varname="s_1", samples=t(s_1_pos)),
+    data.frame(varname="s_2", samples=t(s_2_pos)),
+    data.frame(varname="be_1", samples=be_pos[1, ]),
+    data.frame(varname="g", samples=1/t(r_pos) - 1)
+  )
+  if(model_H0[i] == 0) {
+    possamplelist[[i]] = rbind(
+      possamplelist[[i]],
+      data.frame(varname="be_2", samples=be_pos[2, ]),
+      data.frame(varname="be_3", samples=be_pos[3, ]),
+      data.frame(varname="be_4", samples=be_pos[4, ])
+    )
+
+    possample_stat = sapply(c("sgm", "s_1", "s_2", "be_1", "be_2", "be_3", "be_4", "g"),
+                            function(varname) {
+                              c(mean(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname]),
+                                sd(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname]),
+                                quantile(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname], c(0.025, 0.25, 0.50, 0.75, 0.975))
+                                )
+                              }
+                            )
+    possample_stat <- t(possample_stat)
+    colnames(possample_stat)[1:2] <- c("mean", "sd")
+    print(possample_stat)
+  } else {
+    possamplelist[[i]] = rbind(
+      possamplelist[[i]],
+      data.frame(varname="be_2", samples=NaN),
+      data.frame(varname="be_3", samples=be_pos[2, ]),
+      data.frame(varname="be_4", samples=be_pos[3, ])
+    )
+  }
+  
   M = standata$M
   N = standata$N
   n = standata$n
@@ -124,27 +177,7 @@ ggplotlist <- vector(mode="list", length=2)
 modelname = c("1", "0a")
 
 for(i in 1:2) {
-  posterior_samples = as.data.frame(modellist[[i]])
-  
-  df_ggplot <- rbind(
-    data.frame(varname="sgm", samples=unname(posterior_samples["sgm"])),
-    data.frame(varname="s_1", samples=unname(posterior_samples["s_1"])),
-    data.frame(varname="s_2", samples=unname(posterior_samples["s_2"])),
-    data.frame(varname="be_1", samples=unname(posterior_samples["be[1]"])),
-    data.frame(varname="g", samples=unname(1/posterior_samples["r"] - 1))
-  )
-  
-  if (modelname[i] == "1") {
-    df_ggplot <- rbind(df_ggplot,
-                       data.frame(varname="be_2", samples=unname(posterior_samples["be[2]"])),
-                       data.frame(varname="be_3", samples=unname(posterior_samples["be[3]"])),
-                       data.frame(varname="be_4", samples=unname(posterior_samples["be[4]"])))
-  } else {
-    df_ggplot <- rbind(df_ggplot,
-                       data.frame(varname="be_2", samples=NaN),
-                       data.frame(varname="be_3", samples=unname(posterior_samples["be[2]"])),
-                       data.frame(varname="be_4", samples=unname(posterior_samples["be[3]"])))
-  }
+  df_ggplot <- possamplelist[[i]]
   
   ggplotlist[[i]] <- ggplot(df_ggplot, aes(x=samples, y=varname, group=varname)) +
     geom_density_ridges(scale=1.2) +
