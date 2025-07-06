@@ -43,7 +43,7 @@ lnZ = c(0, 0)
 stanfile = c("lmm_ssnlauip.stan", "lmm_ssauip.stan")
 model_H0 = c(0, 1)
 q = 2
-numchains = 4
+numchains = 6
 
 h_lnhalft <- function(x, nu, s) {
   log(2) + log(gamma((nu+1)/2)) - log(gamma(nu/2)) - log(sqrt(nu*pi*s^2)) + (-(nu+1)/2)*log(1 + 1/nu*x^2/s^2)
@@ -75,7 +75,7 @@ for(i in 1:2) {
     s_1_pos = t(mixture_draws(individual_draws=drop(extract(fit_pos, permuted=FALSE, pars="s_1")), weight=stack_obj$chain_weights))
     s_2_pos = t(mixture_draws(individual_draws=drop(extract(fit_pos, permuted=FALSE, pars="s_2")), weight=stack_obj$chain_weights))
     be_pos = extract(fit_pos, permuted=FALSE, pars="be")
-    be_pos = t(sapply(1:numchains, function(i) {mixture_draws(individual_draws=be_pos[,,i], weight=stack_obj$chain_weights)}))
+    be_pos = t(sapply(1:standata$p, function(i) {mixture_draws(individual_draws=be_pos[,,i], weight=stack_obj$chain_weights)}))
     r_pos = t(mixture_draws(individual_draws=drop(extract(fit_pos, permuted=FALSE, pars="r")), weight=stack_obj$chain_weights))
   } else {
     posterior_samples = as.data.frame(fit_pos)
