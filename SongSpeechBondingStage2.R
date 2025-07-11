@@ -44,8 +44,8 @@ head(summary_simdat)
 #Load and pre-process data (NB: Full raw files with pilot participant data not shared publicly, just shown for transparency - you can reproduce this analysis starting )
 df<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/SpeechSong_London_Chinese_March 21, 2025_20.44_unifiedrows.csv') #import from separate Qualtrics account output - not shared publicly
 df<-df[-c(12,13),] #Exclude duplicated participant data (change from hard-coding?)
-d<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/song_May 28, 2025_11.48.csv')#import from main Qualtrics account output - not shared publicly
-d<-d[-c(1:244,276:304,320:322,384:392,407,417:421),]#Exclude pilot data (change from hard-coding?)
+d<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/song_July 11, 2025_13.39.csv')#import from main Qualtrics account output - not shared publicly
+d<-d[-c(1:244,276:304,320:322,384:392,407,417:421,451:453,455:467,474,491:493,501:514,542:546,566:572,579:591,611,614,623:624),]#Exclude pilot data (change from hard-coding?)
 d[18,19]="R" #fix participant entry error 
 d[1,20]="10" #fix participant entry error
 d[14,20]="6" #fix participant entry error
@@ -56,6 +56,15 @@ d[116,20]="6" #fix participant entry error
 d[118,20]="2" #fix participant entry error
 d[123,20]="1" #fix participant entry error
 d[124,20]="8" #fix participant entry error
+d[160,20]="5" #fix participant entry error
+d[217,20]="4" #fix participant entry error
+d[222,20]="1" #fix participant entry error
+d[250,20]="R10" #fix participant entry error
+d[256,20]="S2" #fix participant entry error
+d[261,20]="C1" #fix participant entry error
+d[267,20]="C5" #fix participant entry error
+d[270,20]="C4" #fix participant entry error
+d[274,20]="3" #fix participant entry error
 
 d<-d[-c(21,74),] #Exclude duplicated participant data (change from hard-coding?)
 df<-rbind(df,d)
