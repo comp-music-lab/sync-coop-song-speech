@@ -1,6 +1,6 @@
 ### Load data ###
-datafilename = "keydata_long_20250525.csv"
-rawdatafilename = "stage2data_20250525.csv"
+datafilename = "keydata_long_20250624.csv"
+rawdatafilename = "stage2data_20250624.csv"
 source("h_datalist.R")
 datalist <- h_datalist(datafilename, rawdatafilename)
 
@@ -122,6 +122,8 @@ g <- annotate_figure(g, top=text_grob(
   paste("Model comparison (BF", paste(modelname[3:4], collapse="") ,"= ", sprintf("%0.2f", exp(lnZ[3] - lnZ[4])), ")", sep=""),
   face="bold", size=16))
 ggexport(g, filename="./figure/confirmatory_analysis_02_2_BF.png")
+
+plot(g)
 
 ### Additional analysis ###
 '
