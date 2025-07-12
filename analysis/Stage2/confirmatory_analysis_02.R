@@ -1,6 +1,6 @@
 ### Load data ###
-datafilename = "keydata_long_20250624.csv"
-rawdatafilename = "stage2data_20250624.csv"
+datafilename = "keydata_long_20250712.csv"
+rawdatafilename = "stage2data_20250712.csv"
 source("h_datalist.R")
 datalist <- h_datalist(datafilename, rawdatafilename)
 
@@ -113,13 +113,13 @@ for(i in 1:length(pattern)) {
 
 g <- ggarrange(ggplotlist[[1]], ggplotlist[[2]], ncol=2, nrow=1)
 g <- annotate_figure(g, top=text_grob(
-  paste("Model comparison (BF", paste(modelname[1:2], collapse="") ,"= ", sprintf("%0.2f", exp(lnZ[1] - lnZ[2])), ")", sep=""),
+  paste("Model comparison (log10BF", paste(modelname[1:2], collapse="") ,"= ", sprintf("%0.2f", (lnZ[1] - lnZ[2])/log(10)), ")", sep=""),
   face="bold", size=16))
 ggexport(g, filename="./figure/confirmatory_analysis_02_1_BF.png")
 
 g <- ggarrange(ggplotlist[[3]], ggplotlist[[4]], ncol=2, nrow=1)
 g <- annotate_figure(g, top=text_grob(
-  paste("Model comparison (BF", paste(modelname[3:4], collapse="") ,"= ", sprintf("%0.2f", exp(lnZ[3] - lnZ[4])), ")", sep=""),
+  paste("Model comparison (log10BF", paste(modelname[3:4], collapse="") ,"= ", sprintf("%0.2f", (lnZ[3] - lnZ[4])/log(10)), ")", sep=""),
   face="bold", size=16))
 ggexport(g, filename="./figure/confirmatory_analysis_02_2_BF.png")
 
