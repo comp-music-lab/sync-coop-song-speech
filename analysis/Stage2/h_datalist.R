@@ -69,5 +69,7 @@ h_datalist <- function(datafilename, rawdatafilename) {
     reci = sapply(unique(data$site), function(i){length(unique(data$Participant[data$site == i & data$group == "R"]))})
   )
   
-  return(list(X=X, y=y, Z=Z, M=M, N=N, n=n, N_cond=N_cond, data=data))
+  N_X = colSums(Z_1)[sapply(1:dim(Z_1)[1], function(i){which(Z_1[i,]==1)})]/2
+  
+  return(list(X=X, y=y, Z=Z, M=M, N=N, n=n, N_cond=N_cond, data=data, N_X=N_X))
 }
