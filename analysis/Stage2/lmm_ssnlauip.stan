@@ -77,5 +77,9 @@ model {
 
 generated quantities {
   vector[2*N] log_lik;
-  for(i in 1:2*N) log_lik[i] = beta*normal_lpdf(y[i] | mu[i], sgm);
+  vector[2*N] y_rep;
+  for(i in 1:2*N) {
+    log_lik[i] = beta*normal_lpdf(y[i] | mu[i], sgm);
+    y_rep[i] = normal_rng(mu[i], sgm);
+  }
 }

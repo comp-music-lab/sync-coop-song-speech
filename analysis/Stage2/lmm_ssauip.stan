@@ -62,3 +62,10 @@ model {
   be ~ multi_normal_prec(rep_vector(0, p), Lmd);
   target += beta*normal_lpdf(y | mu, sgm);
 }
+
+generated quantities {
+  vector[2*N] y_rep;
+  for(i in 1:2*N) {
+    y_rep[i] = normal_rng(mu[i], sgm);
+  }
+}

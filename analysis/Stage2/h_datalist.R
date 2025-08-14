@@ -37,8 +37,13 @@ h_datalist <- function(datafilename, rawdatafilename) {
   data$site[data$Participant %in% c(data$Participant[62:75], data$Participant[91:98])] = 4 # Cluj-Napoca, România 
   data$site[data$Participant %in% data$Participant[76:90]] = 5 # New Delhi, India
   data$site[data$Participant %in% data$Participant[99:117]] = 6 # Auckland, New Zealand (Chinese cohorts)
-  data$site[data$Participant %in% c(data$Participant[118:138])] = 7 # Auckland, New Zealand
-  data$site[data$Participant %in% c(data$Participant[139:165])] = 8 # Padova, Italy
+  data$site[data$Participant %in% c(data$Participant[118:138], data$Participant[166])] = 7 # Auckland, New Zealand
+  data$site[data$Participant %in% data$Participant[139:165]] = 8 # Padova, Italy
+  data$site[data$Participant %in% c(data$Participant[167:172], data$Participant[239:243], data$Participant[269:273])] = 9 # Roma, Italy
+  data$site[data$Participant %in% data$Participant[173:195]] = 10 # Praha, Česká republika
+  data$site[data$Participant %in% data$Participant[196:221]] = 11 # Bangkok, Thailand
+  data$site[data$Participant %in% data$Participant[222:238]] = 12 # Reading, UK
+  data$site[data$Participant %in% data$Participant[244:268]] = 13 # Lagos, Nigeria
   
   data$cohort = as.numeric(factor(paste(data$site, data$group, sep="")))
   data$idx_song = as.numeric(data$time == "Post_Experiment" & data$group == "S")
@@ -64,5 +69,7 @@ h_datalist <- function(datafilename, rawdatafilename) {
     reci = sapply(unique(data$site), function(i){length(unique(data$Participant[data$site == i & data$group == "R"]))})
   )
   
-  return(list(X=X, y=y, Z=Z, M=M, N=N, n=n, N_cond=N_cond, data=data))
+  N_X = colSums(Z_1)[sapply(1:dim(Z_1)[1], function(i){which(Z_1[i,]==1)})]/2
+  
+  return(list(X=X, y=y, Z=Z, M=M, N=N, n=n, N_cond=N_cond, data=data, N_X=N_X))
 }
