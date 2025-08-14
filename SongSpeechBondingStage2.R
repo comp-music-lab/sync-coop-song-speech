@@ -41,7 +41,16 @@ dir.create('../figs/tutorial_R/', showWarnings = FALSE)
 
 head(summary_simdat)
 
-#Load and pre-process data (NB: Full raw files with pilot participant data not shared publicly, just shown for transparency - you can reproduce this analysis starting )
+#Load and pre-process data (NB: Full raw files with pilot participant data not shared publicly, just shown for transparency)
+
+#Load and clean experimenter reports (used to help exclude pilot data below):
+e<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/Many Voices 2 post-experiment survey (for experimenter)_August 12, 2025_11.31.csv')#import from main Qualtrics account output - not shared publicly
+colnames(e)<-e[1,] #change column names to make clear what they are
+e<-e[-c(1:2),] #remove non-data rows
+e<-e[-c(1:3,7:9,13:16,25,30,37:38,43,54,58,61),]#Exclude pilot experiments (change from hard-coding?)
+write.csv(e,'experimentlog.csv')
+
+#Load participant data
 df<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/SpeechSong_London_Chinese_March 21, 2025_20.44_unifiedrows.csv') #import from separate Qualtrics account output - not shared publicly
 df<-df[-c(12,13),] #Exclude duplicated participant data (change from hard-coding?)
 d<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/song_August 14, 2025_12.33.csv')#import from main Qualtrics account output - not shared publicly
