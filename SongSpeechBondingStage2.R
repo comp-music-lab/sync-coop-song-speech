@@ -47,14 +47,16 @@ head(summary_simdat)
 e<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/Many Voices 2 post-experiment survey (for experimenter)_August 12, 2025_11.31.csv')#import from main Qualtrics account output - not shared publicly
 colnames(e)<-e[1,] #change column names to make clear what they are
 e<-e[-c(1:2),] #remove non-data rows
+e$`IP Address`="NA"#Remove IP address data
+e$`Response ID`="NA"#Remove Response ID data
 e<-e[-c(1:3,7:9,13:16,25,30,37:38,43,54,58,61),]#Exclude pilot experiments (change from hard-coding?)
 write.csv(e,'experimentlog.csv')
 
 #Load participant data
 df<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/SpeechSong_London_Chinese_March 21, 2025_20.44_unifiedrows.csv') #import from separate Qualtrics account output - not shared publicly
 df<-df[-c(12,13),] #Exclude duplicated participant data (change from hard-coding?)
-d<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/song_August 14, 2025_12.33.csv')#import from main Qualtrics account output - not shared publicly
-d<-d[-c(1:244,276:304,320:322,384:392,407,417:421,451:453,455:467,474,491:493,501:514,542:546,566:572,579:591,611,614,623:624,631:718,726:742,758:778),]#Exclude pilot data (change from hard-coding?)
+d<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/song_September 5, 2025_16.40.csv')#import from main Qualtrics account output - not shared publicly
+d<-d[-c(1:244,276:304,320:322,384:392,407,417:421,451:453,455:467,474,491:493,501:514,542:546,566:572,579:591,611,614,623:624,631:718,726:742,758:782,788:795,815),]#Exclude pilot data (change from hard-coding?)
 d[18,19]="R" #fix participant entry error 
 d[1,20]="10" #fix participant entry error
 d[14,20]="6" #fix participant entry error
@@ -73,7 +75,12 @@ d[256,20]="S2" #fix participant entry error
 d[261,20]="C1" #fix participant entry error
 d[267,20]="C5" #fix participant entry error
 d[270,20]="C4" #fix participant entry error
-d[274,20]="3" #fix participant entry error
+d[300,20]="5" #fix participant entry error
+d[301,20]="4" #fix participant entry error
+d[302,20]="6" #fix participant entry error
+d[303,20]="2" #fix participant entry error
+d[304,20]="3" #fix participant entry error
+
 
 d<-d[-c(21,74,277),] #Exclude duplicated participant data (change from hard-coding?)
 df<-rbind(df,d)
@@ -154,3 +161,14 @@ p11 <- ggplot(rep_data, aes(x = time, y = score, fill = group)) +
 ggsave('3Conditions.png', width = w, height = h)
 
 p11
+
+#Calculate mean % pre-post increase
+(sumrepdat$score_mean[2]-sumrepdat$score_mean[1])/sumrepdat$score_mean[1] #singing
+(sumrepdat$score_mean[4]-sumrepdat$score_mean[3])/sumrepdat$score_mean[3] #conversation
+(sumrepdat$score_mean[6]-sumrepdat$score_mean[5])/sumrepdat$score_mean[5] #recitation
+
+#Calculate total n
+sumrepdat$N[2]+sumrepdat$N[4]+sumrepdat$N[6]
+
+
+
