@@ -44,6 +44,8 @@ h_datalist <- function(datafilename, rawdatafilename) {
   data$site[data$Participant %in% data$Participant[196:221]] = 11 # Bangkok, Thailand
   data$site[data$Participant %in% data$Participant[222:238]] = 12 # Reading, UK
   data$site[data$Participant %in% data$Participant[244:268]] = 13 # Lagos, Nigeria
+  data$site[data$Participant %in% data$Participant[274:293]] = 14 # Frankfurt, Germany
+  data$site[data$Participant %in% data$Participant[294:315]] = 15 # Bergen, Norway
   
   data$cohort = as.numeric(factor(paste(data$site, data$group, sep="")))
   data$idx_song = as.numeric(data$time == "Post_Experiment" & data$group == "S")

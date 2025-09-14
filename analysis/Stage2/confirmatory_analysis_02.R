@@ -1,6 +1,6 @@
 ### Load data ###
-datafilename = "keydata_long_20250712.csv"
-rawdatafilename = "stage2data_20250712.csv"
+datafilename = "keydata_long_20250914.csv"
+rawdatafilename = "stage2data_20250914.csv"
 source("h_datalist.R")
 datalist <- h_datalist(datafilename, rawdatafilename)
 
@@ -25,7 +25,8 @@ source("h_Lmd.R")
 source("h_uipmvn.R")
 source("h_mvnlik.R")
 
-for(i in 1:length(pattern)) {
+for(i in 1:2) {
+#for(i in 1:length(pattern)) {
   cat(paste(Sys.time(), ": i = ", i, "\n", sep=""))
   standata <- h_standata(datalist, pattern[i])
   fit_pos <- stan(file = stanfile, data = standata, chains = 4, 
@@ -93,15 +94,20 @@ for(i in 1:length(pattern)) {
   posterior_samples = as.data.frame(modellist[[i]])
   
   df_ggplot <- rbind(
-    data.frame(varname="sgm", samples=unname(posterior_samples["sgm"])),
-    data.frame(varname="s_1", samples=unname(posterior_samples["s_1"])),
-    data.frame(varname="s_2", samples=unname(posterior_samples["s_2"])),
-    data.frame(varname="be_1", samples=unname(posterior_samples["be[1]"])),
-    data.frame(varname="be_2", samples=unname(posterior_samples["be[2]"])),
-    data.frame(varname="be_3", samples=unname(posterior_samples["be[3]"])),
-    data.frame(varname="be_4", samples=unname(posterior_samples["be[4]"])),
+    data.frame(varname="σ", samples=unname(posterior_samples["sgm"])),
+    data.frame(varname="σ (cohort-level)", samples=unname(posterior_samples["s_1"])),
+    data.frame(varname="σ (individual-level)", samples=unname(posterior_samples["s_2"])),
+    data.frame(varname="Intercept", samples=unname(posterior_samples["be[1]"])),
+    data.frame(varname="Singing", samples=unname(posterior_samples["be[2]"])),
+    data.frame(varname="Conversation", samples=unname(posterior_samples["be[3]"])),
+    data.frame(varname="Recitation", samples=unname(posterior_samples["be[4]"])),
     data.frame(varname="g", samples=unname(1/posterior_samples["r"] - 1))
   )
+  df_ggplot$varname <- factor(df_ggplot$varname,
+                              levels=c('g', 'σ (individual-level)',
+                                       'σ (cohort-level)', 'σ', 'Recitation',
+                                       'Conversation', 'Singing', 'Intercept'
+  ))
   
   ggplotlist[[i]] <- ggplot(df_ggplot, aes(x=samples, y=varname, group=varname)) +
     geom_density_ridges(scale=1.2) +
@@ -115,18 +121,12 @@ g <- ggarrange(ggplotlist[[1]], ggplotlist[[2]], ncol=2, nrow=1)
 g <- annotate_figure(g, top=text_grob(
   paste("Model comparison (log10BF", paste(modelname[1:2], collapse="") ,"= ", sprintf("%0.2f", (lnZ[1] - lnZ[2])/log(10)), ")", sep=""),
   face="bold", size=16))
-ggexport(g, filename="./figure/confirmatory_analysis_02_1_BF.png")
+ggsave(g, dpi=1200, height=6, width=9, filename="./figure/confirmatory_analysis_02_1_BF.png")
 
 g <- ggarrange(ggplotlist[[3]], ggplotlist[[4]], ncol=2, nrow=1)
 g <- annotate_figure(g, top=text_grob(
   paste("Model comparison (log10BF", paste(modelname[3:4], collapse="") ,"= ", sprintf("%0.2f", (lnZ[3] - lnZ[4])/log(10)), ")", sep=""),
   face="bold", size=16))
-ggexport(g, filename="./figure/confirmatory_analysis_02_2_BF.png")
+ggsave(g, dpi=1200, height=6, width=9, filename="./figure/confirmatory_analysis_02_2_BF.png")
 
 plot(g)
-
-### Additional analysis ###
-'
-traceplot(modellist[[1]], pars=c("sgm", "s_1", "s_2", "be", "g"), inc_warmup=FALSE, nrow=2)
-traceplot(modellist[[2]], pars=c("sgm", "s_1", "s_2", "be", "g"), inc_warmup=FALSE, nrow=2)
-'
