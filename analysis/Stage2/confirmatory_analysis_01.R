@@ -1,34 +1,8 @@
 ### Load data ###
-datafilename = "keydata_long_20250712.csv"
-rawdatafilename = "stage2data_20250712.csv"
+datafilename = "keydata_long_20250914.csv"
+rawdatafilename = "stage2data_20250914.csv"
 source("h_datalist.R")
 datalist <- h_datalist(datafilename, rawdatafilename)
-
-# test 1
-'
-datalist$y[datalist$X[,2] == 1] = datalist$y[datalist$X[,2] == 1] + 0.0
-'
-
-# test 2
-'
-be_sim = matrix(c(40, 10, 5, 3), ncol=1)
-sgm_sim = 14
-s_sim = c(10, 6)
-u_sim = matrix(c(rnorm(datalist$M, 0, s_sim[1]), rnorm(datalist$N, 0, s_sim[2])), ncol=1)
-y_sim = datalist$X%*%be_sim + datalist$Z%*%u_sim + rnorm(dim(datalist$X)[1], 0, sgm_sim)
-datalist$y = c(y_sim)
-'
-
-# test 3
-'
-library(lme4)
-df = data.frame(y = datalist$y, x_song = datalist$X[,2], x_conv = datalist$X[,3],
-                x_reci = datalist$X[,4],
-                z_coho = sapply(1:dim(datalist$Z)[1], function(i){which(datalist$Z[i,1:datalist$M] == 1)}),
-                z_indi = sapply(1:dim(datalist$Z)[1], function(i){which(datalist$Z[i,(datalist$M+1):(datalist$M+datalist$N)] == 1)})
-)
-fm1 <- lmer(y ~ x_song + x_conv + x_reci + (1 | z_coho) + (1 | z_indi), df)
-'
 
 ### Run analysis ###
 # Use Chuu et al. (2021, AISTATS)'s method instead of the stepping-stone sampling algorithm described in the manuscript
@@ -187,6 +161,19 @@ modelname = c("1", "0a")
 for(i in 1:2) {
   df_ggplot <- possamplelist[[i]]
   
+  df_ggplot$varname[df_ggplot$varname == 'sgm'] = 'σ'
+  df_ggplot$varname[df_ggplot$varname == 's_1'] = 'σ (cohort-level)'
+  df_ggplot$varname[df_ggplot$varname == 's_2'] = 'σ (individual-level)'
+  df_ggplot$varname[df_ggplot$varname == 'g'] = 'g'
+  df_ggplot$varname[df_ggplot$varname == 'be_1'] = 'Intercept'
+  df_ggplot$varname[df_ggplot$varname == 'be_2'] = 'Singing'
+  df_ggplot$varname[df_ggplot$varname == 'be_3'] = 'Conversation'
+  df_ggplot$varname[df_ggplot$varname == 'be_4'] = 'Recitation'
+  df_ggplot$varname <- factor(df_ggplot$varname, levels=c('g', 'σ (individual-level)',
+                                     'σ (cohort-level)', 'σ', 'Recitation',
+                                     'Conversation', 'Singing', 'Intercept'
+                                     ))
+  
   ggplotlist[[i]] <- ggplot(df_ggplot, aes(x=samples, y=varname, group=varname)) +
     geom_density_ridges(scale=1.2) +
     theme_ridges() + 
@@ -201,7 +188,7 @@ g <- annotate_figure(g,
                        paste("Model comparison (log10BF", paste(modelname, collapse=""), " = ", sprintf("%0.2f", (lnZ[1] - lnZ[2])/log(10)), ")", sep=""), 
                      face="bold", size=16))
 
-ggexport(g, filename="./figure/confirmatory_analysis_01_BF.png")
+ggsave(g, dpi=1200, height=6, width=9, filename="./figure/confirmatory_analysis_01_BF.png")
 
 plot(g)
 
@@ -211,7 +198,9 @@ df_ggplot <- data.frame(
   y=datalist$y,
   y_H0=rowMeans(ppcsamplelist[[2]]),
   y_H1=rowMeans(ppcsamplelist[[1]]),
-  Site=as.factor(datalist$data$site)
+  Site=as.factor(datalist$data$site),
+  res_H0=rowMeans(ppcsamplelist[[2]]) - datalist$y,
+  res_H1=rowMeans(ppcsamplelist[[1]]) - datalist$y
 )
 
 condname <- c("Pre-intervention", "Post-intervention (group singing)",
@@ -220,42 +209,32 @@ condname <- c("Pre-intervention", "Post-intervention (group singing)",
 ggplotlist <- vector(mode="list", length=4)
 for(j in 1:4) {
   ggplotlist_j <- vector(mode="list", length=2)
-  ggplotlist_j[[1]] <- ggplot(data=df_ggplot[df_ggplot$cond==(j-1), ], aes(x=y, y=y_H0, color=Site)) + geom_point() + geom_abline(slope=1, intercept=0, linetype="dashed") + xlim(0, 100) + ylim(0, 100) + xlab("Observed score") + ylab("Simulated score (H0)") + theme(axis.title.x=element_text(size = 9), axis.title.y=element_text(size = 9))
-  ggplotlist_j[[2]] <- ggplot(data=df_ggplot[df_ggplot$cond==(j-1), ], aes(x=y, y=y_H1, color=Site)) + geom_point() + geom_abline(slope=1, intercept=0, linetype="dashed") + xlim(0, 100) + ylim(0, 100) + xlab("Observed score") + ylab("Simulated score (H1)") + theme(axis.title.x=element_text(size = 9), axis.title.y=element_text(size = 9))
+  
+  ggplotlist_j[[1]] <- ggplot(data=df_ggplot[df_ggplot$cond==(j-1), ], aes(x=y, y=y_H0, color=Site)) + 
+    geom_point() + geom_abline(slope=1, intercept=0, linetype="dashed") + xlim(0, 100) + ylim(0, 100) + 
+    xlab("Observed score") + ylab("Simulated score (H0)") + 
+    theme(axis.title.x=element_text(size = 9), axis.title.y=element_text(size = 9))
+  ggplotlist_j[[2]] <- ggplot(data=df_ggplot[df_ggplot$cond==(j-1), ], aes(x=y, y=y_H1, color=Site)) + 
+    geom_point() + geom_abline(slope=1, intercept=0, linetype="dashed") + xlim(0, 100) + ylim(0, 100) + 
+    xlab("Observed score") + ylab("Simulated score (H1)") + 
+    theme(axis.title.x=element_text(size = 9), axis.title.y=element_text(size = 9))
   g <- ggarrange(plotlist=ggplotlist_j, ncol=2, nrow=1, legend="none")
   g <- annotate_figure(g, top=text_grob(paste(condname[j], sep=""), face="bold", size=12))
-  ggplotlist[[j]] <- g
   
+  ggplotlist[[j]] <- g
   ggsave(filename=paste("./figure/confirmatory_analysis_01_PPC_", j, ".png", sep=""),
-         plot=ggplotlist[[j]], width=4, height=2
-  )
+         plot=ggplotlist[[j]], width=4, height=2)
 }
 
 # dummy data to extract legend information
-df_dummy <- data.frame(x=1:13, y=1:13,
-                       Site=factor(1:13, labels=c("UK [London]", "Indonesia [Surakarta]", "Japan [Kanagawa]",
+df_dummy <- data.frame(x=1:15, y=1:15,
+                       Site=factor(1:15, labels=c("UK [London]", "Indonesia [Surakarta]", "Japan [Kanagawa]",
                                                   "Romania [Cluj]", "India [New Delhi]", "New Zealand [Auckland] (1)",
                                                   "New Zealand [Auckland] (2)", "Italy [Padova]", "Italy [Rome]", 
                                                   "Czech Republic [Prague]", "Thailand [Bangkok]", "UK [Reading]",
-                                                  "Nigeria [Lagos]")))
+                                                  "Nigeria [Lagos]", "Germany [Frankfurt]", "Norway [Bergen]")))
 g <- ggplot(data=df_dummy, aes(x=x, y=y, color=Site)) + geom_point() + 
   guides(color=guide_legend(ncol=4, nrow=4, byrow=TRUE))
 gl <- as_ggplot(get_legend(g))
 ggsave(filename="./figure/confirmatory_analysis_legend.png", plot=gl)
 plot(gl)
-
-
-### Additional analysis ###
-'
-traceplot(modellist[[1]], pars=c("sgm", "s_1", "s_2", "be", "g"), inc_warmup=TRUE, nrow=2)
-traceplot(modellist[[2]], pars=c("sgm", "s_1", "s_2", "be", "g"), inc_warmup=TRUE, nrow=2)
-
-scorediff <- t(sapply(unique(datalist$data$Participant), function(i){
-  data.frame(Participant = i, 
-             scorediff = datalist$data$score[datalist$data$Participant == i & datalist$data$time == "Post_Experiment"] - 
-               datalist$data$score[datalist$data$Participant == i & datalist$data$time == "Pre_Experiment"],
-             site = unique(datalist$data$site[datalist$data$Participant == i]),
-             group = unique(datalist$data$group[datalist$data$Participant == i])
-  )
-}))
-'

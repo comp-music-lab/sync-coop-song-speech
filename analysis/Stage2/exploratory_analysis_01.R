@@ -1,6 +1,6 @@
 ### Load data ###
-datafilename = "keydata_long_20250712.csv"
-rawdatafilename = "stage2data_20250712.csv"
+datafilename = "keydata_long_20250914.csv"
+rawdatafilename = "stage2data_20250914.csv"
 source("h_datalist.R")
 datalist <- h_datalist(datafilename, rawdatafilename)
 
@@ -134,7 +134,7 @@ g <- annotate_figure(g,
                        paste("Model comparison (log10BF", paste(modelname, collapse=""), " = ", sprintf("%0.2f", (lnZ[1] - lnZ[2])/log(10)), ")", sep=""), 
                      face="bold", size=16))
 
-ggexport(g, filename="./figure/exploratory_analysis_01_BF.png")
+ggsave(g, dpi=1200, height=6, width=9, filename="./figure/exploratory_analysis_01_BF.png")
 
 plot(g)
 
@@ -149,12 +149,14 @@ df_ggplot <- data.frame(
 
 condname <- c("Pre-intervention", "Post-intervention (group singing)",
               "Post-intervention (group conversation)", "Post-intervention (group recitation)")
+xlimval <- c(0, 100)
+ylimval <- c(0, 100)
 
 ggplotlist <- vector(mode="list", length=4)
 for(j in 1:4) {
   ggplotlist_j <- vector(mode="list", length=2)
-  ggplotlist_j[[1]] <- ggplot(data=df_ggplot[df_ggplot$cond==(j-1), ], aes(x=y, y=y_H0, color=Site)) + geom_point() + geom_abline(slope=1, intercept=0, linetype="dashed") + xlim(0, 100) + ylim(0, 100) + xlab("Observed score") + ylab("Simulated score (H0)") + theme(axis.title.x=element_text(size = 9), axis.title.y=element_text(size = 9))
-  ggplotlist_j[[2]] <- ggplot(data=df_ggplot[df_ggplot$cond==(j-1), ], aes(x=y, y=y_H1, color=Site)) + geom_point() + geom_abline(slope=1, intercept=0, linetype="dashed") + xlim(0, 100) + ylim(0, 100) + xlab("Observed score") + ylab("Simulated score (H1)") + theme(axis.title.x=element_text(size = 9), axis.title.y=element_text(size = 9))
+  ggplotlist_j[[1]] <- ggplot(data=df_ggplot[df_ggplot$cond==(j-1), ], aes(x=y, y=y_H0, color=Site)) + geom_point() + geom_abline(slope=1, intercept=0, linetype="dashed") + xlim(xlimval[1], xlimval[2]) + ylim(ylimval[1], ylimval[2]) + xlab("Observed score") + ylab("Simulated score (H0)") + theme(axis.title.x=element_text(size = 9), axis.title.y=element_text(size = 9))
+  ggplotlist_j[[2]] <- ggplot(data=df_ggplot[df_ggplot$cond==(j-1), ], aes(x=y, y=y_H1, color=Site)) + geom_point() + geom_abline(slope=1, intercept=0, linetype="dashed") + xlim(xlimval[1], xlimval[2]) + ylim(ylimval[1], ylimval[2]) + xlab("Observed score") + ylab("Simulated score (H1)") + theme(axis.title.x=element_text(size = 9), axis.title.y=element_text(size = 9))
   g <- ggarrange(plotlist=ggplotlist_j, ncol=2, nrow=1, legend="none")
   g <- annotate_figure(g, top=text_grob(paste(condname[j], sep=""), face="bold", size=12))
   ggplotlist[[j]] <- g
@@ -164,59 +166,25 @@ for(j in 1:4) {
   )
 }
 
+df_tmp <- rbind(
+  data.frame(y=df_ggplot$y, cond=df_ggplot$cond, Site=df_ggplot$Site, model='obs'),
+  data.frame(y=df_ggplot$y_H0, cond=df_ggplot$cond, Site=df_ggplot$Site, model='H0'),
+  data.frame(y=df_ggplot$y_H1, cond=df_ggplot$cond, Site=df_ggplot$Site, model='H1'),
+  data.frame(y=18*rt(datalist$N*2, 9, 0) + mean(df_ggplot$y), cond=df_ggplot$cond, Site=df_ggplot$Site, model='Simt'),
+  data.frame(y=20*rnorm(datalist$N*2, 0, 1) + mean(df_ggplot$y), cond=df_ggplot$cond, Site=df_ggplot$Site, model='Simn')
+)
+g <- ggplot(data=df_tmp[df_tmp$cond == 1, ], aes(y, color=model, fill=model)) + geom_density(adjust=1.0, alpha=0.1)
+plot(g)
+
 # dummy data to extract legend information
-df_dummy <- data.frame(x=1:13, y=1:13,
-                       Site=factor(1:13, labels=c("UK [London]", "Indonesia [Surakarta]", "Japan [Kanagawa]",
+df_dummy <- data.frame(x=1:15, y=1:15,
+                       Site=factor(1:15, labels=c("UK [London]", "Indonesia [Surakarta]", "Japan [Kanagawa]",
                                                   "Romania [Cluj]", "India [New Delhi]", "New Zealand [Auckland] (1)",
                                                   "New Zealand [Auckland] (2)", "Italy [Padova]", "Italy [Rome]", 
                                                   "Czech Republic [Prague]", "Thailand [Bangkok]", "UK [Reading]",
-                                                  "Nigeria [Lagos]")))
+                                                  "Nigeria [Lagos]", "Germany [Frankfurt]", "Norway [Bergen]")))
 g <- ggplot(data=df_dummy, aes(x=x, y=y, color=Site)) + geom_point() + 
   guides(color=guide_legend(ncol=4, nrow=4, byrow=TRUE))
 gl <- as_ggplot(get_legend(g))
 ggsave(filename="./figure/exploratory_analysis_legend.png", plot=gl)
 plot(gl)
-
-### Additional analysis ###
-df_ggplot <- data.frame(
-  cond=sapply(1:(2*N), function(x){ifelse(sum(datalist$X[x, 2:4]) == 0, 0, which(datalist$X[x, 2:4] == 1))}),
-  y=datalist$y,
-  Site=as.factor(datalist$data$site),
-  N=datalist$N_X,
-  ID=sapply(1:(2*N), function(x){which(datalist$Z[x, (datalist$M+1):(datalist$M+datalist$N)]==1)})
-)
-df_ggplot <- merge(df_ggplot[df_ggplot$cond != 0, ], df_ggplot[df_ggplot$cond == 0, ], by="ID")
-df_ggplot <- data.frame(ID=df_ggplot$ID, dy=(df_ggplot$y.x - df_ggplot$y.y),
-                        cond=df_ggplot$cond.x, Site=df_ggplot$Site.x, N=df_ggplot$N.x)
-df_ggplot$N <- as.factor(df_ggplot$N)
-levels(df_ggplot$N) <- c('N=4', 'N=5', 'N=6', 'N=7', 'N=8', 'N=9', 'N=10')
-
-condname <- c("Post-intervention (group singing)",
-              "Post-intervention (group conversation)", "Post-intervention (group recitation)")
-
-for(i in 1:3) {
-  g <- ggplot(data=df_ggplot[df_ggplot$cond==i, ], aes(y=dy, x=N, color=Site)) + 
-    geom_violin(trim=TRUE, draw_quantiles=c(0.5)) + geom_point(position=position_dodge(width=0.9)) + geom_hline(yintercept=0, linetype="dashed") + 
-    xlab("Group size") + ylab("Δscore") + ylim(-50, 80) + 
-    facet_grid(~N, scales='free_x') +
-    ggtitle(condname[i]) + 
-    theme(plot.title=element_text(hjust=0.5, size=14, face="bold"), legend.position="none", axis.text.x=element_blank())
-
-  ggsave(filename=paste("./figure/exploratory_analysis_01_dscore_", i, ".png", sep=""), plot=g)
-}
-
-plot(g)
-
-'
-traceplot(modellist[[1]], pars=c("sgm", "s_1", "s_2", "be", "g"), inc_warmup=TRUE, nrow=2)
-traceplot(modellist[[2]], pars=c("sgm", "s_1", "s_2", "be", "g"), inc_warmup=TRUE, nrow=2)
-
-scorediff <- t(sapply(unique(datalist$data$Participant), function(i){
-  data.frame(Participant = i, 
-             scorediff = datalist$data$score[datalist$data$Participant == i & datalist$data$time == "Post_Experiment"] - 
-               datalist$data$score[datalist$data$Participant == i & datalist$data$time == "Pre_Experiment"],
-             site = unique(datalist$data$site[datalist$data$Participant == i]),
-             group = unique(datalist$data$group[datalist$data$Participant == i])
-  )
-}))
-'
