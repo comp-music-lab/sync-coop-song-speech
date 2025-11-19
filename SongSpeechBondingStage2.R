@@ -95,7 +95,7 @@ d[454,19]="R" #fix participant entry error
 d[479,19]="C" #fix participant entry error
 
 
-d<-d[-c(21,74,130,277),] #Exclude duplicated/incomplete participant data (change from hard-coding?)
+d<-d[-c(21,74,130,277,394:395),] #Exclude duplicated/incomplete participant data (change from hard-coding?)
 df<-rbind(df,d)
 colnames(df)<-df[1,] #change column names to make clear what they are
 #Rename with shorter variable names
