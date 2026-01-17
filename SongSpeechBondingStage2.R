@@ -44,20 +44,20 @@ head(summary_simdat)
 #Load and pre-process data (NB: Full raw files with pilot participant data not shared publicly, just shown for transparency)
 
 #Load and clean experimenter reports (used to help exclude pilot data below):
-e<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/Many Voices 2 post-experiment survey (for experimenter)_December 28, 2025_10.16.csv')#import from main Qualtrics account output - not shared publicly
+e<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/Many Voices 2 post-experiment survey (for experimenter)_January 17, 2026_16.22.csv')#import from main Qualtrics account output - not shared publicly
 colnames(e)<-e[1,] #change column names to make clear what they are
 e<-e[-c(1:2),] #remove non-data rows
 e$`IP Address`="NA"#Remove IP address data
 e$`Response ID`="NA"#Remove Response ID data
-e<-e[-c(1:3,7:9,13:16,25,30,37:38,43,54,58,61:65,68:70,72:74,81,89,99,108),]#Exclude pilot experiments (change from hard-coding?)
+e<-e[-c(1:3,7:9,13:16,25,30,37:38,43,54,58,61:65,68:70,72:74,81,89,99,108,121),]#Exclude pilot experiments (change from hard-coding?)
 e[79,23]<-"9" #correct experimenter entry error
 write.csv(e,'experimentlog.csv')
 
 #Load participant data
 df<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/SpeechSong_London_Chinese_March 21, 2025_20.44_unifiedrows.csv') #import from separate Qualtrics account output - not shared publicly
 df<-df[-c(12,13),] #Exclude duplicated participant data (change from hard-coding?)
-d<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/song_December 28, 2025_10.15.csv')#import from main Qualtrics account output - not shared publicly
-d<-d[-c(1:244,276:304,320:322,384:392,407,417:421,451:453,455:467,474,491:493,501:514,542:546,566:572,579:591,611,614,623:624,631:718,726:742,758:782,788:795,815:859,877:878,887:889,916:917,928,934,949,971:972,988:990,1016:1020,1026,1033:1035,1042:1048,1057:1067,1085:1091,1098,1105:1106,1127,1137:1141,1137:1155,1184:1187,1212:1216,1245:1246),]#Exclude pilot data (change from hard-coding?)
+d<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/song_January 17, 2026_16.22.csv')#import from main Qualtrics account output - not shared publicly
+d<-d[-c(1:244,276:304,320:322,384:392,407,417:421,451:453,455:467,474,491:493,501:514,542:546,566:572,579:591,611,614,623:624,631:718,726:742,758:782,788:795,815:859,877:878,887:889,916:917,928,934,949,971:972,988:990,1016:1020,1026,1033:1035,1042:1048,1057:1067,1085:1091,1098,1105:1106,1127,1137:1141,1137:1155,1184:1187,1212:1216,1245:1246,1271:1286),]#Exclude pilot data (change from hard-coding?)
 d[18,19]="R" #fix participant entry error 
 d[1,20]="10" #fix participant entry error
 d[14,20]="6" #fix participant entry error
@@ -103,6 +103,9 @@ d[579,20]="C8" #fix participant entry error
 d[591,20]="S8" #fix participant entry error
 d[592,20]="S9" #fix participant entry error
 d[593,20]="S5" #fix participant entry error
+d[627,20]="7" #fix participant entry error
+d[657,20]="07" #fix participant entry error
+d[673,20]="08" #fix participant entry error
 
 d<-d[-c(21,74,130,277,394:395),] #Exclude duplicated/incomplete participant data (change from hard-coding?)
 d<- subset(d, `Consent`=="Yes - I want to continue on to the study questions")
