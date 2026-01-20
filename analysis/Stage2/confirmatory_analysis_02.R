@@ -1,6 +1,10 @@
 ### Load data ###
-datafilename = "keydata_long_20250914.csv"
-rawdatafilename = "stage2data_20250914.csv"
+datafilename = "keydata_long_20260118.csv"
+rawdatafilename = "stage2data_20260118.csv"
+
+source("h_keydata.R")
+h_keydata(datafilename, rawdatafilename)
+
 source("h_datalist.R")
 datalist <- h_datalist(datafilename, rawdatafilename)
 
@@ -11,8 +15,10 @@ datalist <- h_datalist(datafilename, rawdatafilename)
 library(rstan)
 library(rpart)
 
+rseed = 2059;
 pattern = c(0, 1, 2, 3)
 modellist <- vector(mode="list", length=length(pattern))
+possamplelist <- vector(mode="list", length=length(pattern))
 lnZ = rep(0, length(pattern))
 stanfile = "lmm_linconuip.stan"
 
@@ -25,22 +31,38 @@ source("h_Lmd.R")
 source("h_uipmvn.R")
 source("h_mvnlik.R")
 
-for(i in 1:2) {
-#for(i in 1:length(pattern)) {
+source("chain_stacking.R")
+stan_model_object = stan_model("stacking_opt.stan")
+
+for(i in 1:length(pattern)) {
   cat(paste(Sys.time(), ": i = ", i, "\n", sep=""))
   standata <- h_standata(datalist, pattern[i])
   fit_pos <- stan(file = stanfile, data = standata, chains = 4, 
-                  warmup = 1000, iter = 2000, cores = 4, refresh = 0)
+                  warmup = 11000, iter = 12000, cores = 4, refresh = 0)
   print(fit_pos, pars=c("sgm", "s_1", "s_2", "be", "g"))
   modellist[[i]] <- fit_pos
   
-  posterior_samples = as.data.frame(fit_pos)
-  sgm_pos = t(as.matrix(posterior_samples["sgm"]))
-  s_1_pos = t(as.matrix(posterior_samples["s_1"]))
-  s_2_pos = t(as.matrix(posterior_samples["s_2"]))
-  be_pos = t(as.matrix(posterior_samples[sapply(1:standata$p, function(x){paste("be[", x, "]", sep="")})]))
-  r_pos = t(as.matrix(posterior_samples["r"]))
-    
+  stack_obj = chain_stack(fits=fit_pos, lambda=1.0001, log_lik_char="log_lik")
+  print(stack_obj$chain_weights)
+  
+  sgm_pos = t(mixture_draws(individual_draws=drop(extract(fit_pos, permuted=FALSE, pars="sgm")), weight=stack_obj$chain_weights, random_seed=rseed))
+  s_1_pos = t(mixture_draws(individual_draws=drop(extract(fit_pos, permuted=FALSE, pars="s_1")), weight=stack_obj$chain_weights, random_seed=rseed))
+  s_2_pos = t(mixture_draws(individual_draws=drop(extract(fit_pos, permuted=FALSE, pars="s_2")), weight=stack_obj$chain_weights, random_seed=rseed))
+  be_pos = extract(fit_pos, permuted=FALSE, pars="be")
+  be_pos = t(sapply(1:standata$p, function(i) {mixture_draws(individual_draws=be_pos[,,i], weight=stack_obj$chain_weights, random_seed=rseed)}))
+  r_pos = t(mixture_draws(individual_draws=drop(extract(fit_pos, permuted=FALSE, pars="r")), weight=stack_obj$chain_weights, random_seed=rseed))
+  
+  possamplelist[[i]] = rbind(
+    data.frame(varname="sgm", samples=t(sgm_pos)),
+    data.frame(varname="s_1", samples=t(s_1_pos)),
+    data.frame(varname="s_2", samples=t(s_2_pos)),
+    data.frame(varname="be_1", samples=be_pos[1, ]),
+    data.frame(varname="be_2", samples=be_pos[2, ]),
+    data.frame(varname="be_3", samples=be_pos[3, ]),
+    data.frame(varname="be_4", samples=be_pos[4, ]),
+    data.frame(varname="g", samples=1/t(r_pos) - 1)
+  )
+  
   M = standata$M
   N = standata$N
   n = standata$n
@@ -91,18 +113,17 @@ modelname = c("2a", "0b", "2b", "0b")
 ggplotlist <- vector(mode="list", length=length(pattern))
 
 for(i in 1:length(pattern)) {
-  posterior_samples = as.data.frame(modellist[[i]])
+  df_ggplot <- possamplelist[[i]]
   
-  df_ggplot <- rbind(
-    data.frame(varname="σ", samples=unname(posterior_samples["sgm"])),
-    data.frame(varname="σ (cohort-level)", samples=unname(posterior_samples["s_1"])),
-    data.frame(varname="σ (individual-level)", samples=unname(posterior_samples["s_2"])),
-    data.frame(varname="Intercept", samples=unname(posterior_samples["be[1]"])),
-    data.frame(varname="Singing", samples=unname(posterior_samples["be[2]"])),
-    data.frame(varname="Conversation", samples=unname(posterior_samples["be[3]"])),
-    data.frame(varname="Recitation", samples=unname(posterior_samples["be[4]"])),
-    data.frame(varname="g", samples=unname(1/posterior_samples["r"] - 1))
-  )
+  df_ggplot$varname[df_ggplot$varname == 'sgm'] = 'σ'
+  df_ggplot$varname[df_ggplot$varname == 's_1'] = 'σ (cohort-level)'
+  df_ggplot$varname[df_ggplot$varname == 's_2'] = 'σ (individual-level)'
+  df_ggplot$varname[df_ggplot$varname == 'g'] = 'g'
+  df_ggplot$varname[df_ggplot$varname == 'be_1'] = 'Intercept'
+  df_ggplot$varname[df_ggplot$varname == 'be_2'] = 'Singing'
+  df_ggplot$varname[df_ggplot$varname == 'be_3'] = 'Conversation'
+  df_ggplot$varname[df_ggplot$varname == 'be_4'] = 'Recitation'
+  
   df_ggplot$varname <- factor(df_ggplot$varname,
                               levels=c('g', 'σ (individual-level)',
                                        'σ (cohort-level)', 'σ', 'Recitation',
@@ -129,4 +150,8 @@ g <- annotate_figure(g, top=text_grob(
   face="bold", size=16))
 ggsave(g, dpi=1200, height=6, width=9, filename="./figure/confirmatory_analysis_02_2_BF.png")
 
-plot(g)
+for (i in 1:length(pattern)) {
+  g <- traceplot(modellist[[i]], pars=c("sgm", "s_1", "s_2", "be", "g"), inc_warmup=TRUE, nrow=2)
+  figfilename <- paste("./figure/confirmatory_analysis_02_chain_", i, ".png", sep="")
+  ggsave(g, dpi=1200, height=6, width=9, filename=figfilename)
+}
