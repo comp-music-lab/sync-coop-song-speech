@@ -8,12 +8,20 @@ h_keydata(datafilename, rawdatafilename)
 source("h_datalist.R")
 datalist <- h_datalist(datafilename, rawdatafilename)
 
+### data sanity check ###
+participantkey <- with(datalist, with(data, paste(site, group, ID, sep='')))
+keyfreq <- table(participantkey)
+print(keyfreq[keyfreq != 2])
+print(datalist$data[datalist$N_X == 12, c("ID", "starttime")])
+print(datalist$data[datalist$data$site == 26 & datalist$data$group == "S", c("ID", "starttime")])
+
 ### Run analysis ###
 # Use Chuu et al. (2021, AISTATS)'s method instead of the stepping-stone sampling algorithm described in the manuscript
 # to compute marginal likelihood to quickly check preliminary results
 
 library(rstan)
 library(rpart)
+library(posterior)
 
 rseed = 409;
 modellist <- vector(mode="list", length=2)
@@ -92,12 +100,13 @@ for(i in 1:2) {
                             function(varname) {
                               c(mean(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname]),
                                 sd(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname]),
-                                quantile(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname], c(0.025, 0.25, 0.50, 0.75, 0.975))
+                                quantile(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname], c(0.025, 0.25, 0.50, 0.75, 0.975)),
+                                rhat(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname])
                                 )
                               }
                             )
     possample_stat <- t(possample_stat)
-    colnames(possample_stat)[1:2] <- c("mean", "sd")
+    colnames(possample_stat)[c(1, 2, 8)] <- c("mean", "sd", "Rhat")
     print(possample_stat)
   } else {
     possamplelist[[i]] = rbind(
