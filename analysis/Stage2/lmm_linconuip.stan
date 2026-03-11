@@ -54,18 +54,29 @@ transformed parameters {
 }
 
 model {
+  vector[p] m = rep_vector(0, p);
+  
   r ~ beta(0.01, 0.01*N);
   s_1 ~ student_t(2, 0, 1000);
   s_2 ~ student_t(2, 0, 1000);
   u_1 ~ normal(0, s_1);
   u_2 ~ normal(0, s_2);
   sgm ~ student_t(2, 0, 1000);
-  be ~ multi_normal_prec(rep_vector(0, p), Lmd);
-  
+  be ~ multi_normal_prec(m, Lmd);
+  /*
   if (pattern == 0) if(be[2] <= be[3]) target += negative_infinity();
   if (pattern == 1) if(be[2] > be[3]) target += negative_infinity();
   if (pattern == 2) if(be[2] <= be[4]) target += negative_infinity();
   if (pattern == 3) if(be[2] > be[4]) target += negative_infinity();
-    
+  */
   target += beta*normal_lpdf(y | mu, sgm);
+}
+
+generated quantities {
+  vector[2*N] log_lik;
+  vector[2*N] y_rep;
+  for(i in 1:2*N) {
+    log_lik[i] = beta*normal_lpdf(y[i] | mu[i], sgm);
+    y_rep[i] = normal_rng(mu[i], sgm);
+  }
 }

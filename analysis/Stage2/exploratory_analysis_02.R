@@ -1,8 +1,22 @@
 ### Load data ###
-datafilename = "keydata_long_20250914.csv"
-rawdatafilename = "stage2data_20250914.csv"
+datafilename = "keydata_long_20260118.csv"
+rawdatafilename = "stage2data_20260118.csv"
+
+source("h_keydata.R")
+h_keydata(datafilename, rawdatafilename)
+
 source("h_datalist.R")
 datalist <- h_datalist(datafilename, rawdatafilename)
+
+###
+#y_post = rowSums(datalist$data[, c('trust.1', 'team.1', 'similar.1', 'ties.1', 'common.1', 'close.1')])/6
+#y = rowSums(datalist$data[, c('trust', 'team', 'similar', 'ties', 'common', 'close')])/6
+#y[rowSums(datalist$X[, 2:4]) == 1] = y_post[rowSums(datalist$X[, 2:4]) == 1]
+
+#measurement = 'close.1'
+#y = datalist$data[, 'trust']
+#y[rowSums(datalist$X[, 2:4]) == 1] = datalist$data[, measurement][rowSums(datalist$X[, 2:4]) == 1]
+#datalist$y = y
 
 ### Additional analysis ###
 library(ggplot2)
@@ -21,7 +35,7 @@ df_ggplot <- merge(df_ggplot[df_ggplot$cond != 0, ], df_ggplot[df_ggplot$cond ==
 df_ggplot <- data.frame(ID=df_ggplot$ID, dy=(df_ggplot$y.x - df_ggplot$y.y),
                         cond=df_ggplot$cond.x, Site=df_ggplot$Site.x, N=df_ggplot$N.x)
 df_ggplot$N <- as.factor(df_ggplot$N)
-levels(df_ggplot$N) <- c('N=4', 'N=5', 'N=6', 'N=7', 'N=8', 'N=9', 'N=10')
+levels(df_ggplot$N) <- c('N=4', 'N=5', 'N=6', 'N=7', 'N=8', 'N=9', 'N=10', 'N=12')
 
 condname <- c("Post-intervention (group singing)",
               "Post-intervention (group conversation)", "Post-intervention (group recitation)")

@@ -1,8 +1,19 @@
 ### Load data ###
-datafilename = "keydata_long_20250914.csv"
-rawdatafilename = "stage2data_20250914.csv"
+datafilename = "keydata_long_20260118.csv"
+rawdatafilename = "stage2data_20260118.csv"
+
+source("h_keydata.R")
+h_keydata(datafilename, rawdatafilename)
+
 source("h_datalist.R")
 datalist <- h_datalist(datafilename, rawdatafilename)
+
+### data sanity check ###
+participantkey <- with(datalist, with(data, paste(site, group, ID, sep='')))
+keyfreq <- table(participantkey)
+print(keyfreq[keyfreq != 2])
+print(datalist$data[datalist$N_X == 12, c("ID", "starttime")])
+print(datalist$data[datalist$data$site == 26 & datalist$data$group == "S", c("ID", "starttime")])
 
 ### Run analysis ###
 # Use Chuu et al. (2021, AISTATS)'s method instead of the stepping-stone sampling algorithm described in the manuscript
@@ -10,7 +21,9 @@ datalist <- h_datalist(datafilename, rawdatafilename)
 
 library(rstan)
 library(rpart)
+library(posterior)
 
+rseed = 409;
 modellist <- vector(mode="list", length=2)
 possamplelist <- vector(mode="list", length=2)
 ppcsamplelist <- vector(mode="list", length=2)
@@ -46,15 +59,15 @@ for(i in 1:2) {
     stack_obj = chain_stack(fits=fit_pos, lambda=1.0001, log_lik_char="log_lik")
     print(stack_obj$chain_weights)
     
-    sgm_pos = t(mixture_draws(individual_draws=drop(extract(fit_pos, permuted=FALSE, pars="sgm")), weight=stack_obj$chain_weights))
-    s_1_pos = t(mixture_draws(individual_draws=drop(extract(fit_pos, permuted=FALSE, pars="s_1")), weight=stack_obj$chain_weights))
-    s_2_pos = t(mixture_draws(individual_draws=drop(extract(fit_pos, permuted=FALSE, pars="s_2")), weight=stack_obj$chain_weights))
+    sgm_pos = t(mixture_draws(individual_draws=drop(extract(fit_pos, permuted=FALSE, pars="sgm")), weight=stack_obj$chain_weights, random_seed=rseed))
+    s_1_pos = t(mixture_draws(individual_draws=drop(extract(fit_pos, permuted=FALSE, pars="s_1")), weight=stack_obj$chain_weights, random_seed=rseed))
+    s_2_pos = t(mixture_draws(individual_draws=drop(extract(fit_pos, permuted=FALSE, pars="s_2")), weight=stack_obj$chain_weights, random_seed=rseed))
     be_pos = extract(fit_pos, permuted=FALSE, pars="be")
-    be_pos = t(sapply(1:standata$p, function(i) {mixture_draws(individual_draws=be_pos[,,i], weight=stack_obj$chain_weights)}))
-    r_pos = t(mixture_draws(individual_draws=drop(extract(fit_pos, permuted=FALSE, pars="r")), weight=stack_obj$chain_weights))
+    be_pos = t(sapply(1:standata$p, function(i) {mixture_draws(individual_draws=be_pos[,,i], weight=stack_obj$chain_weights, random_seed=rseed)}))
+    r_pos = t(mixture_draws(individual_draws=drop(extract(fit_pos, permuted=FALSE, pars="r")), weight=stack_obj$chain_weights, random_seed=rseed))
     
     y_pos = extract(fit_pos, permuted=FALSE, pars="y_rep")
-    ppcsamplelist[[i]] = t(sapply(1:(2*standata$N), function(i) {mixture_draws(individual_draws=y_pos[,,i], weight=stack_obj$chain_weights)}))
+    ppcsamplelist[[i]] = t(sapply(1:(2*standata$N), function(i) {mixture_draws(individual_draws=y_pos[,,i], weight=stack_obj$chain_weights, random_seed=rseed)}))
   } else {
     posterior_samples = as.data.frame(fit_pos)
     sgm_pos = t(unname(as.matrix(posterior_samples["sgm"])))
@@ -87,12 +100,13 @@ for(i in 1:2) {
                             function(varname) {
                               c(mean(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname]),
                                 sd(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname]),
-                                quantile(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname], c(0.025, 0.25, 0.50, 0.75, 0.975))
+                                quantile(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname], c(0.025, 0.25, 0.50, 0.75, 0.975)),
+                                rhat(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname])
                                 )
                               }
                             )
     possample_stat <- t(possample_stat)
-    colnames(possample_stat)[1:2] <- c("mean", "sd")
+    colnames(possample_stat)[c(1, 2, 8)] <- c("mean", "sd", "Rhat")
     print(possample_stat)
   } else {
     possamplelist[[i]] = rbind(
@@ -192,6 +206,12 @@ ggsave(g, dpi=1200, height=6, width=9, filename="./figure/confirmatory_analysis_
 
 plot(g)
 
+for (i in 1:2) {
+  g <- traceplot(modellist[[i]], pars=c("sgm", "s_1", "s_2", "be", "g"), inc_warmup=TRUE, nrow=2)
+  figfilename <- paste("./figure/confirmatory_analysis_01_chain_", i, ".png", sep="")
+  ggsave(g, dpi=1200, height=6, width=9, filename=figfilename)
+}
+
 ### Plot results (posterior predictive checks) ###
 df_ggplot <- data.frame(
   cond=sapply(1:(2*N), function(x){ifelse(sum(datalist$X[x, 2:4]) == 0, 0, which(datalist$X[x, 2:4] == 1))}),
@@ -227,14 +247,19 @@ for(j in 1:4) {
 }
 
 # dummy data to extract legend information
-df_dummy <- data.frame(x=1:15, y=1:15,
-                       Site=factor(1:15, labels=c("UK [London]", "Indonesia [Surakarta]", "Japan [Kanagawa]",
+df_dummy <- data.frame(x=1:30, y=1:30,
+                       Site=factor(1:30, labels=c("UK [London](1)", "Indonesia [Surakarta]", "Japan [Kanagawa]",
                                                   "Romania [Cluj]", "India [New Delhi]", "New Zealand [Auckland] (1)",
                                                   "New Zealand [Auckland] (2)", "Italy [Padova]", "Italy [Rome]", 
                                                   "Czech Republic [Prague]", "Thailand [Bangkok]", "UK [Reading]",
-                                                  "Nigeria [Lagos]", "Germany [Frankfurt]", "Norway [Bergen]")))
+                                                  "Nigeria [Lagos]", "Germany [Frankfurt]", "Norway [Bergen]",
+                                                  "Colombia [Bogotá]", "Canada [Mississauga]", "Österreich [Innsbruck]",
+                                                  "UK [Nottingham]", "Australia [Gold Coast]", "UK [London] (2)",
+                                                  "USA [Amherst]", "New Zealand [Auckland] (3)", "Hungary [Budapest]",
+                                                  "Russia [Yekaterinburg]", "Poland [Poznań]", "Germany [Kaiserslautern]",
+                                                  "Korea [Seoul]", "Georgia [Tbilisi]", "Canada [Hamilton]")))
 g <- ggplot(data=df_dummy, aes(x=x, y=y, color=Site)) + geom_point() + 
-  guides(color=guide_legend(ncol=4, nrow=4, byrow=TRUE))
+  guides(color=guide_legend(ncol=6, nrow=5, byrow=TRUE))
 gl <- as_ggplot(get_legend(g))
-ggsave(filename="./figure/confirmatory_analysis_legend.png", plot=gl)
+ggsave(filename="./figure/confirmatory_analysis_legend.png", plot=gl, width=12, height=4)
 plot(gl)
