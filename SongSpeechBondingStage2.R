@@ -1,5 +1,5 @@
 #This code was used to perform the analyses reported in:
-#Savage, P. E., Ampiah-Bonney, A., Arabadjiev, A., Arhine, A., Ariza, J. F., Arnese, F., Bamford, J. S., Barbosa, B. S., Beck, A.-K., Belyk, M., Benetos, E., Bulbulia, J. A., Cabildo, A., Calhoun, S., Chiba, G., Dabaghi Varnosfaderani, S., Dias, R., Duran, S. I., Echim, S., Færøvik, U., Fitch, W. T., Fujii, S., Gabriel, S., Grassi, M., Guiotto Nai Fovino, L. Haiduk, F., Hajič jr., J., Hansen, N. C., Han, K. Y., He, Y., Hegde, S., Honbolygó, F., Huang, J., Jacoby, N., Jadoul, Y., Jia, Z., Jung, T., Kertész, C., Khasanah, U., Kim, I., Kitayama, Y., Kosachenko, A., Krzyżanowski, W., Kuikuro, U., Kurdova, D., Larrouy-Maestri, P., Mikova, Z., Leongómez, J. D., Liu, F., Lomsadze, T., Loui, P., Ma, Y., McBride, J. M., Mousavi, N., Moya, D., Natsitsabui, R., Nguqu, N., Novembre, G., Nuska, P., Nweke, F. E., Ong, J. H., Opondo, P., Ozaki, Y., Parkinson, H., Parselelo, M. L., Pavlov, Y.G., Pavlovich, D., Perry, G., Pfordresher, P. Q., Pisanski, K., Podlipniak, P., Popescu, T., Proutskova, P., Purdy, S., Ravignani, A., Raviv, L., Reindl, E., Ross, R. M., Sadaphal, D. P., Shakya, S. R., Shi, Z., Shilton, D., Silva-Zurita, J., Soto-Silva, I., Štěpánková, B., Talamini, F., Tarr, B., Thompson, W. F., Tierney, A., Tiratanti, P., Trainor, L., Tunçgenç,  B., Vanden Bosch der Nederlanden, C., Vaida, S. Varella, M. A. C., Youngblood, M., Zariquiey, R. (In Principle Accepted). Does synchronised singing enhance social bonding more than speaking does? A global experimental Stage 1 Registered Report. Peer Community In Registered Reports. Preprint: https://doi.org/10.31234/osf.io/pv3m9 
+#Jia, Z., Pavlovich, D., Ozaki, Y., Huang, J., Benetos, E., Khasanah, U., Calhoun, S., Chiba, G., Kitayama, Y., Fujii, S., Sadaphal, D. P., Fitch, W. T., Vaida, S., Echim, S., Popescu, T., Shi, Z., Grassi, M., Guiotto Nai Fovino, L., Hajič jr., J., Nuska, P., Štěpánková, B., Tiratanti, P., Bulbulia, J. A., He, Y., Li, Y., Liu, F., Novembre, G., Coissac, C., Arnese, F.,  Jadoul, Y., Ravignani, A., Nweke, F. E., Olajide, O. A., Adeaga, M., Mousavi, N., Larrouy-Maestri, P., Færøvik, U., Quintero, J., Ariza, J. F., Leongómez, J. D., Cabildo, A., Vanden Bosch der Nederlanden, Proutskova, P., C., Macholl, D., Ong, J. H., Wider, C., Tunçgenç,  B., Talamini, F., Thompson, W. F., Perry, G., Wolff, L., Ross, R. M., Ampiah-Bonney, A., Gabriel, S., Pfordresher, P. Q., Parkinson, H., Honbolygó, F., Kertész, C., Pavlov, Y.G., Kosachenko, A., Krzyżanowski, W., Podlipniak, P., Dabaghi Varnosfaderani, S., Beck, A.-K.,Kim, I., Jung, T., McBride, J. M., Lomsadze, T., Ripley, S., Bilous, K., Trainor, L. J., Bamford, J. S., Tarr, B., Han, K. Y.,  McCullough, A. K., Loui, P., Dias, R., Arasco, A., Bellot, A., Pisanski, K., Raviv, L., van Casteren, R., Kortegaard, K. B., Hansen, N. C., Kurdova, D., Mikova, Z., Arhine, A., Okantah, M. O. Jr., Labayili, K. K., Ma, Y., Sears, D., Rivera, L. A., Kolios, S., Haiduk, F., Zariquiey, R., Poblete, M., Rojas, S., Nguqu, N., Opondo, P., Parselelo, M. L., Barbosa, B. S., Varella, M. A. C., Belyk, M., Youngblood, M., Purdy, S., Savage, P. E. (In Principle Accepted). Does synchronised singing enhance social bonding more than speaking does? A global experimental Stage 1 Registered Report. Peer Community In Registered Reports. Preprint: https://doi.org/10.31234/osf.io/pv3m9 [Peer Community In Registered Reports editorial recommendation and peer review: https://rr.peercommunityin.org/articles/rec?id=890]    
 
 #It was partially adapted from code from the following publication:
 #Allen, M., Poggiali, D., Whitaker, K., Marshall, T. R., Van Langen, J., & Kievit, R. A. (2021). Raincloud plots: A multi-platform tool for robust data visualization. Wellcome Open Research, 4, 63. https://doi.org/10.12688/wellcomeopenres.15191.2
@@ -44,20 +44,25 @@ head(summary_simdat)
 #Load and pre-process data (NB: Full raw files with pilot participant data not shared publicly, just shown for transparency)
 
 #Load and clean experimenter reports (used to help exclude pilot data below):
-e<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/Many Voices 2 post-experiment survey (for experimenter)_January 17, 2026_16.22.csv')#import from main Qualtrics account output - not shared publicly
+e<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/Many Voices 2 post-experiment survey (for experimenter)_March 11, 2026_06.53.csv')#import from main Qualtrics account output - not shared publicly
 colnames(e)<-e[1,] #change column names to make clear what they are
 e<-e[-c(1:2),] #remove non-data rows
 e$`IP Address`="NA"#Remove IP address data
 e$`Response ID`="NA"#Remove Response ID data
-e<-e[-c(1:3,7:9,13:16,25,30,37:38,43,54,58,61:65,68:70,72:74,81,89,99,108,121),]#Exclude pilot experiments (change from hard-coding?)
+e<-e[-c(1:3,7:9,13:16,25,30,37:38,43,54,58,61:65,68:70,72:74,81,89,99,108,121,126,128,131,135,144,148,150,152,156,160,164),]#Exclude pilot experiments (change from hard-coding?)
 e[79,23]<-"9" #correct experimenter entry error
+e[108,22]<-"Singing first" #correct experimenter entry error
+e[115,24]<-"90" #correct experimenter entry error
+e[116,24]<-"90" #correct experimenter entry error
+e[117,24]<-"90" #correct experimenter entry error
+
 write.csv(e,'experimentlog.csv')
 
 #Load participant data
 df<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/SpeechSong_London_Chinese_March 21, 2025_20.44_unifiedrows.csv') #import from separate Qualtrics account output - not shared publicly
 df<-df[-c(12,13),] #Exclude duplicated participant data (change from hard-coding?)
-d<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/song_January 17, 2026_16.22.csv')#import from main Qualtrics account output - not shared publicly
-d<-d[-c(1:244,276:304,320:322,384:392,407,417:421,451:453,455:467,474,491:493,501:514,542:546,566:572,579:591,611,614,623:624,631:718,726:742,758:782,788:795,815:859,877:878,887:889,916:917,928,934,949,971:972,988:990,1016:1020,1026,1033:1035,1042:1048,1057:1067,1085:1091,1098,1105:1106,1127,1137:1141,1137:1155,1184:1187,1212:1216,1245:1246,1271:1286),]#Exclude pilot data (change from hard-coding?)
+d<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Savage et al (2025) PCI-RR Many Voices 2/MV2 real data/song_March 11, 2026_06.53.csv')#import from main Qualtrics account output - not shared publicly
+d<-d[-c(1:244,276:304,320:322,384:392,407,417:421,451:453,455:467,474,491:493,501:514,542:546,566:572,579:591,611,614,623:624,631:718,726:742,758:782,788:795,815:859,877:878,887:889,916:917,928,934,949,971:972,988:990,1016:1020,1026,1033:1035,1042:1048,1057:1067,1085:1091,1098,1105:1106,1127,1137:1141,1137:1155,1184:1187,1212:1216,1245:1246,1271:1286,1311,1317:1320,1326:1329,1330:1333,1344:1347,1375:1387,1428,1439:1440,1450:1453,1462:1466,1533:1559,1597:1606,1626,1628,1636:1647,1649:1650),]#Exclude pilot data (change from hard-coding?)
 d[18,19]="R" #fix participant entry error 
 d[1,20]="10" #fix participant entry error
 d[14,20]="6" #fix participant entry error
@@ -98,6 +103,7 @@ d[520,19]="C" #fix participant entry error
 d[524,19]="C" #fix participant entry error
 d[534,19]="S" #fix participant entry error
 d[538,20]="21" #fix participant entry error
+d[567,20]="4" #fix participant entry error 
 d[577,20]="C7" #fix participant entry error
 d[579,20]="C8" #fix participant entry error
 d[591,20]="S8" #fix participant entry error
@@ -106,8 +112,20 @@ d[593,20]="S5" #fix participant entry error
 d[627,20]="7" #fix participant entry error
 d[657,20]="07" #fix participant entry error
 d[673,20]="08" #fix participant entry error
+d[760,20]="6" #fix participant entry error
+d[829,20]="27" #fix participant entry error
+d[843,20]="R3" #fix participant entry error
+d[853,20]="S3" #fix participant entry error
+d[856,20]="S6" #fix participant entry error
+d[858,20]="S8" #fix participant entry error
+d[866,19]="C" #fix participant entry error
+d[911,20]="5" #fix participant entry error
+d[916,19]="R" #fix participant entry error
+d[928,19]="S" #fix participant entry error
+d[937,19]="C" #fix participant entry error
 
-d<-d[-c(21,74,130,277,394:395),] #Exclude duplicated/incomplete participant data (change from hard-coding?)
+
+d<-d[-c(21,74,130,277,374:377,394:395,571:574,795,884,925,939),] #Exclude duplicated/incomplete/pilot participant data (change from hard-coding?)
 d<- subset(d, `Consent`=="Yes - I want to continue on to the study questions")
 df<-rbind(df,d)
 colnames(df)<-df[1,] #change column names to make clear what they are
