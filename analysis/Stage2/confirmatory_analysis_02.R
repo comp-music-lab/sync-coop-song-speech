@@ -1,6 +1,6 @@
 ### Load data ###
-datafilename = "keydata_long_20260118.csv"
-rawdatafilename = "stage2data_20260118.csv"
+datafilename = "keydata_long_20260314.csv"
+rawdatafilename = "stage2data_20260314.csv"
 
 source("h_keydata.R")
 h_keydata(datafilename, rawdatafilename)
@@ -46,12 +46,14 @@ source("h_Lmd.R")
 source("h_uipmvn.R")
 source("h_mvnlik.R")
 
-for(i in 1:length(pattern)) {
+for(i in c(2, 4, 1, 3)) {
   # posterior inference
   cat(paste(Sys.time(), ": i = ", i, "\n", sep=""))
   standata <- h_standata(datalist, pattern[i])
   fit_pos <- stan(file = stanfile, data = standata, chains = numchain, 
-                  warmup = numwarmup[i], iter = numiter[i], cores = 4, refresh = 0)
+                  warmup = numwarmup[i], iter = numiter[i], cores = 4, refresh = 50,
+                  include = TRUE, pars = c("sgm", "s_1", "s_2", "be", "g"))
+  print(paste("Stan object data size is", round(object.size(fit_pos)/(1024*1024), 2), "MB"))
   print(fit_pos, pars=c("sgm", "s_1", "s_2", "be", "g"))
   modellist[[i]] <- fit_pos
   
@@ -182,7 +184,7 @@ ggsave(g, dpi=1200, height=6, width=9, filename="./figure/confirmatory_analysis_
 
 g <- ggarrange(ggplotlist[[3]], ggplotlist[[4]], ncol=2, nrow=1)
 g <- annotate_figure(g, top=text_grob(
-  paste("Model comparison (log10BF", paste(modelname[3:4], collapse="") ,"= ", sprintf("%0.2f", (lnZ[3] - lnZ[4])/log(10)), ")", sep=""),
+  paste("Model comparison (log10BF", paste(modelname[3:4], collapse="") ," = ", sprintf("%0.2f", (lnZ[3] - lnZ[4])/log(10)), ")", sep=""),
   face="bold", size=16))
 ggsave(g, dpi=1200, height=6, width=9, filename="./figure/confirmatory_analysis_02_2_BF.png")
 

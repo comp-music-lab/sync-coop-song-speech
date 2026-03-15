@@ -49,19 +49,32 @@ h_datalist <- function(datafilename, rawdatafilename) {
   data$site[data$Participant %in% data$Participant[294:315]] = 15 # Bergen, Norway
   data$site[data$Participant %in% data$Participant[316:340]] = 16 # Bogotá, Colombia
   data$site[data$Participant %in% data$Participant[341:365]] = 17 # Mississauga, Canada
-  data$site[data$Participant %in% c(data$Participant[366:369], data$Participant[411:424], data$Participant[441:449])] = 18 # Innsbruck, Österreich
-  data$site[data$Participant %in% c(data$Participant[370:375], data$Participant[380:384], data$Participant[425:429])] = 19 # Nottingham, UK
-  data$site[data$Participant %in% c(data$Participant[376:379], data$Participant[405:410], data$Participant[450:454])] = 20 # Gold Coast, Australia
-  data$site[data$Participant %in% data$Participant[385:404]] = 21 # London, UK (Russian speakers)
-  data$site[data$Participant %in% c(data$Participant[430:440], data$Participant[461:465])] = 22 # Amherst, USA
-  data$site[data$Participant %in% c(data$Participant[455:460], data$Participant[466:472], data$Participant[490:495])] = 23 # Auckland, New Zealand (Maori Speakers)
-  data$site[data$Participant %in% c(data$Participant[473:489], data$Participant[496:501])] = 24 # Budapest, Hungary
-  data$site[data$Participant %in% data$Participant[502:529]] = 25 # Yekaterinburg, Russia
-  data$site[data$Participant %in% data$Participant[530:556]] = 26 # Poznań, Poland
-  data$site[data$Participant %in% data$Participant[557:577]] = 27 # Kaiserslautern, Germany (Farsi speakers)
-  data$site[data$Participant %in% data$Participant[578:603]] = 28 # Seoul, Korea
-  data$site[data$Participant %in% data$Participant[604:626]] = 29 # Tbilisi, Georgia
-  data$site[data$Participant %in% data$Participant[627:650]] = 30 # Hamilton, Canada
+  data$site[data$Participant %in% c(data$Participant[407:420], data$Participant[437:445])] = 18 # Innsbruck, Österreich
+  data$site[data$Participant %in% c(data$Participant[366:371], data$Participant[376:380], data$Participant[421:425])] = 19 # Nottingham, UK
+  data$site[data$Participant %in% c(data$Participant[372:375], data$Participant[401:406], data$Participant[446:450])] = 20 # Gold Coast, Australia
+  data$site[data$Participant %in% data$Participant[381:400]] = 21 # London, UK (Russian speakers)
+  data$site[data$Participant %in% c(data$Participant[426:436], data$Participant[457:461])] = 22 # Amherst, USA
+  data$site[data$Participant %in% c(data$Participant[451:456], data$Participant[462:468], data$Participant[486:491])] = 23 # Auckland, New Zealand (Maori Speakers)
+  data$site[data$Participant %in% c(data$Participant[469:485], data$Participant[492:497])] = 24 # Budapest, Hungary
+  data$site[data$Participant %in% data$Participant[498:525]] = 25 # Yekaterinburg, Russia
+  data$site[data$Participant %in% data$Participant[526:548]] = 26 # Poznań, Poland
+  data$site[data$Participant %in% data$Participant[549:569]] = 27 # Kaiserslautern, Germany (Farsi speakers)
+  data$site[data$Participant %in% data$Participant[570:595]] = 28 # Seoul, Korea
+  data$site[data$Participant %in% data$Participant[596:618]] = 29 # Tbilisi, Georgia
+  data$site[data$Participant %in% data$Participant[619:642]] = 30 # Hamilton, Canada
+  data$site[data$Participant %in% data$Participant[653:675]] = 31 # Jyväskylä, Finland
+  data$site[data$Participant %in% c(data$Participant[676:688], data$Participant[717:726])] = 32 # Saint Étienne, France
+  data$site[data$Participant %in% c(data$Participant[643:652], data$Participant[689:693])] = 33 # Boston, United States
+  data$site[data$Participant %in% data$Participant[694:709]] = 34 # Colombo, Sri Lanka
+  data$site[data$Participant %in% c(data$Participant[710:716], data$Participant[727:741])] = 35 # Nijmegen, Nederland
+  data$site[data$Participant %in% c(data$Participant[742:757], data$Participant[851:857])] = 36 # Ano Liosia, Greece
+  data$site[data$Participant %in% c(data$Participant[758:784])] = 37 # Aarhus, Danmark
+  data$site[data$Participant %in% c(data$Participant[785:800])] = 38 # Plovdiv, Bulgaria
+  data$site[data$Participant %in% c(data$Participant[801:825], data$Participant[858:858])] = 39 # Accra, Ghana
+  data$site[data$Participant %in% c(data$Participant[826:832], data$Participant[887:896])] = 40 # Wien, Austria
+  data$site[data$Participant %in% c(data$Participant[833:850])] = 41 # Ann Arbor, USA
+  data$site[data$Participant %in% c(data$Participant[859:875])] = 42 # Pucallpa, Perú
+  data$site[data$Participant %in% c(data$Participant[876:886], data$Participant[897:901])] = 43 # Durban, South Africa
   
   data$cohort = as.numeric(factor(paste(data$site, data$group, sep="")))
   data$idx_song = as.numeric(data$time == "Post_Experiment" & data$group == "S")

@@ -1,6 +1,6 @@
 ### Load data ###
-datafilename = "keydata_long_20260118.csv"
-rawdatafilename = "stage2data_20260118.csv"
+datafilename = "keydata_long_20260314.csv"
+rawdatafilename = "stage2data_20260314.csv"
 
 source("h_keydata.R")
 h_keydata(datafilename, rawdatafilename)
@@ -12,8 +12,6 @@ datalist <- h_datalist(datafilename, rawdatafilename)
 participantkey <- with(datalist, with(data, paste(site, group, ID, sep='')))
 keyfreq <- table(participantkey)
 print(keyfreq[keyfreq != 2])
-print(datalist$data[datalist$N_X == 12, c("ID", "starttime")])
-print(datalist$data[datalist$data$site == 26 & datalist$data$group == "S", c("ID", "starttime")])
 
 ### Run analysis ###
 # Use Chuu et al. (2021, AISTATS)'s method instead of the stepping-stone sampling algorithm described in the manuscript
