@@ -1,7 +1,7 @@
 
 ## Map figure
 rm(list = ls())
-collaboratorinfofile <- './data/CollaboratorsPlotDataStage2.csv'
+collaboratorinfofile <- './data/CollaboratorsPlotData.csv'
 OUTPUTDIR <- './output/figure/'
 
 exclusion <- c()
