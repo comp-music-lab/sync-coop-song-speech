@@ -49,12 +49,12 @@ colnames(e)<-e[1,] #change column names to make clear what they are
 e<-e[-c(1:2),] #remove non-data rows
 e$`IP Address`="NA"#Remove IP address data
 e$`Response ID`="NA"#Remove Response ID data
-e<-e[-c(1:3,7:9,13:16,25,30,37:38,43,54,58,61:65,68:70,72:74,81,89,99,108,121,126,128,131,135,144,148,150,152,156,160,164),]#Exclude pilot experiments (change from hard-coding?)
-e[79,23]<-"9" #correct experimenter entry error
-e[108,22]<-"Singing first" #correct experimenter entry error
+e<-e[-c(1:3,7:9,13:16,25,30,37:38,43,51,54,58,61:65,68:70,72:74,81,89,99,108,121,126,128,131,135,144,148,150,152,156,160,164),]#Exclude pilot experiments (change from hard-coding?)
+e[78,23]<-"9" #correct experimenter entry error
+e[107,22]<-"Singing first" #correct experimenter entry error
+e[114,24]<-"90" #correct experimenter entry error
 e[115,24]<-"90" #correct experimenter entry error
 e[116,24]<-"90" #correct experimenter entry error
-e[117,24]<-"90" #correct experimenter entry error
 
 write.csv(e,'experimentlog.csv')
 
