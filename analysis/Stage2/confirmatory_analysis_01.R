@@ -195,10 +195,13 @@ for(i in 1:2) {
 }
 
 g <- ggarrange(plotlist=ggplotlist, ncol=2, nrow=1)
-g <- annotate_figure(g,
-                     top=text_grob(
-                       paste("Model comparison (log10BF", paste(modelname, collapse=""), " = ", sprintf("%0.2f", (lnZ[1] - lnZ[2])/log(10)), ")", sep=""), 
-                     face="bold", size=16))
+g <- annotate_figure(
+  g,
+  top=text_grob(
+    bquote(bold("Model comparison (" * BF[bold("10a")] == .(sprintf("%1.2e", exp(lnZ[1] - lnZ[2]))) * ")")), 
+    size=16
+  )
+)
 
 ggsave(g, dpi=1200, height=6, width=9, filename="./figure/confirmatory_analysis_01_BF.png")
 

@@ -177,15 +177,23 @@ for(i in 1:length(pattern)) {
 }
 
 g <- ggarrange(ggplotlist[[1]], ggplotlist[[2]], ncol=2, nrow=1)
-g <- annotate_figure(g, top=text_grob(
-  paste("Model comparison (log10BF", paste(modelname[1:2], collapse="") ,"= ", sprintf("%0.2f", (lnZ[1] - lnZ[2])/log(10)), ")", sep=""),
-  face="bold", size=16))
+g <- annotate_figure(
+  g,
+  top=text_grob(
+    bquote(bold("Model comparison (" * BF[bold("2a0b")] == .(sprintf("%0.2f", exp(lnZ[1] - lnZ[2]))) * ")")),
+    size=16
+  )
+)
 ggsave(g, dpi=1200, height=6, width=9, filename="./figure/confirmatory_analysis_02_1_BF.png")
 
 g <- ggarrange(ggplotlist[[3]], ggplotlist[[4]], ncol=2, nrow=1)
-g <- annotate_figure(g, top=text_grob(
-  paste("Model comparison (log10BF", paste(modelname[3:4], collapse="") ," = ", sprintf("%0.2f", (lnZ[3] - lnZ[4])/log(10)), ")", sep=""),
-  face="bold", size=16))
+g <- annotate_figure(
+  g,
+  top=text_grob(
+    bquote(bold("Model comparison (" * BF[bold("2b0b")] == .(sprintf("%0.2f", exp(lnZ[3] - lnZ[4]))) * ")")),
+    size=16
+  )
+)
 ggsave(g, dpi=1200, height=6, width=9, filename="./figure/confirmatory_analysis_02_2_BF.png")
 
 # Plot original chain samples
