@@ -123,6 +123,11 @@ d[911,20]="5" #fix participant entry error
 d[916,19]="R" #fix participant entry error
 d[928,19]="S" #fix participant entry error
 d[937,19]="C" #fix participant entry error
+d[949,20]="4" #fix participant entry error
+d[950,20]="5" #fix participant entry error
+d[955,20]="5[duplicate to exclude]" #fix participant entry error
+d[976,20]="10" #fix participant entry error
+d[985,20]="6" #fix participant entry error
 
 
 d<-d[-c(21,74,130,277,374:377,394:395,571:574,795,884,925,939),] #Exclude duplicated/incomplete/pilot participant data (change from hard-coding?)
