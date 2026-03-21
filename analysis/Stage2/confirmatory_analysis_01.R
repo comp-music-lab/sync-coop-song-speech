@@ -30,6 +30,7 @@ stanfile = c("lmm_ssnlauip.stan", "lmm_ssauip.stan")
 model_H0 = c(0, 1)
 q = 2
 numchains = 6
+rhat_theta <- vector(mode="list", length=2)
 
 h_lnhalft <- function(x, nu, s) {
   log(2) + log(gamma((nu+1)/2)) - log(gamma(nu/2)) - log(sqrt(nu*pi*s^2)) + (-(nu+1)/2)*log(1 + 1/nu*x^2/s^2)
@@ -51,6 +52,7 @@ for(i in 1:2) {
   print(fit_pos, pars=c("sgm", "s_1", "s_2", "be", "g"))
   modellist[[i]] <- fit_pos
   
+  # Gather posterior samples
   if(model_H0[i] == 0) {
     source("chain_stacking.R")
     stan_model_object = stan_model("stacking_opt.stan")
@@ -93,19 +95,6 @@ for(i in 1:2) {
       data.frame(varname="be_3", samples=be_pos[3, ]),
       data.frame(varname="be_4", samples=be_pos[4, ])
     )
-
-    possample_stat = sapply(c("sgm", "s_1", "s_2", "be_1", "be_2", "be_3", "be_4", "g"),
-                            function(varname) {
-                              c(mean(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname]),
-                                sd(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname]),
-                                quantile(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname], c(0.025, 0.25, 0.50, 0.75, 0.975)),
-                                rhat(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname])
-                                )
-                              }
-                            )
-    possample_stat <- t(possample_stat)
-    colnames(possample_stat)[c(1, 2, 8)] <- c("mean", "sd", "Rhat")
-    print(possample_stat)
   } else {
     possamplelist[[i]] = rbind(
       possamplelist[[i]],
@@ -115,6 +104,21 @@ for(i in 1:2) {
     )
   }
   
+  rhat_theta[[i]] = sapply(c("sgm", "s_1", "s_2", "be_1", "be_2", "be_3", "be_4", "g"),
+                          function(varname) {
+                            c(mean(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname]),
+                              sd(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname]),
+                              quantile(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname], c(0.025, 0.25, 0.50, 0.75, 0.975), na.rm=TRUE),
+                              rhat(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname])
+                            )
+                          }
+  )
+  rhat_theta[[i]] <- t(rhat_theta[[i]])
+  colnames(rhat_theta[[i]])[c(1, 2, 8)] <- c("mean", "sd", "Rhat")
+  print(rhat_theta[[i]])
+  write.csv(rhat_theta[[i]], sprintf("./figure/confirmatory_analysis_01_stats_%d.csv", i), row.names=FALSE)
+  
+  # Bayes factor computation
   M = standata$M
   N = standata$N
   n = standata$n
@@ -161,6 +165,7 @@ for(i in 1:2) {
 }
 
 cat(paste(Sys.time(), ": lnZ = ", lnZ[1], " vs. ", lnZ[2], "\n", sep=""))
+write.csv(lnZ, "./figure/confirmatory_analysis_01_lnZ.csv", row.names=FALSE)
 
 ### Plot results (posterior distributions) ###
 library(ggridges)

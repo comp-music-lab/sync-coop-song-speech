@@ -5,9 +5,9 @@ h_standata <- function(datalist, pattern) {
   M = datalist$M
   N = datalist$N
   n = datalist$n
-  idx_u_1 = unlist(mapply(function(n_i, i) {rep(i, n_i)}, n, 1:M))
-  idx_u_2 = c(sapply(1:N, function(i){c(i, i)}))
-  idx_st = c(1, which(diff(idx_u_1) == 1) + 1)
+  idx_u_1 = sapply(1:dim(datalist$Z)[1], function(i){which(datalist$Z[i, 1:M] == 1)})
+  idx_u_2 = sapply(1:dim(datalist$Z)[1], function(i){which(datalist$Z[i, (M + 1):dim(datalist$Z)[2]] == 1)})
+  idx_st = c(1, which(diff(idx_u_1) != 0) + 1)
   
   standata <- list(
     y=y, X=X, p=p,

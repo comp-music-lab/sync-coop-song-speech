@@ -34,7 +34,7 @@ lnZ = rep(0, length(pattern))
 stanfile = "lmm_linconuip.stan"
 numwarmup = c(1000, 1000, 1000, 1000)
 numiter = c(2000, 20000, 2000, 20000)
-numchain = 4
+numchains = 4
 rhat_theta <- vector(mode="list", length=length(pattern))
 
 h_lnhalft <- function(x, nu, s) {
@@ -50,7 +50,7 @@ for(i in c(2, 4, 1, 3)) {
   # posterior inference
   cat(paste(Sys.time(), ": i = ", i, "\n", sep=""))
   standata <- h_standata(datalist, pattern[i])
-  fit_pos <- stan(file = stanfile, data = standata, chains = numchain, 
+  fit_pos <- stan(file = stanfile, data = standata, chains = numchains, 
                   warmup = numwarmup[i], iter = numiter[i], cores = 4, refresh = 50,
                   include = TRUE, pars = c("sgm", "s_1", "s_2", "be", "g"))
   print(paste("Stan object data size is", round(object.size(fit_pos)/(1024*1024), 2), "MB"))
@@ -85,6 +85,7 @@ for(i in c(2, 4, 1, 3)) {
   }
   rownames(rhat_theta[[i]]) <- NULL
   print(rhat_theta[[i]])
+  write.csv(rhat_theta[[i]], sprintf("./figure/confirmatory_analysis_02_stats_%d.csv", i), row.names=FALSE)
   possamplelist[[i]]$varname <- sub("[", "_", possamplelist[[i]]$varname, fixed=TRUE)
   possamplelist[[i]]$varname <- sub("]", "", possamplelist[[i]]$varname, fixed=TRUE)
   
@@ -140,6 +141,7 @@ for(i in c(2, 4, 1, 3)) {
 
 cat(paste(Sys.time(), ": lnZ = ", lnZ[1], " vs. ", lnZ[2], "\n", sep=""))
 cat(paste(Sys.time(), ": lnZ = ", lnZ[3], " vs. ", lnZ[4], "\n", sep=""))
+write.csv(lnZ, "./figure/confirmatory_analysis_02_lnZ.csv", row.names=FALSE)
 
 ### Plot results ###
 library(ggridges)

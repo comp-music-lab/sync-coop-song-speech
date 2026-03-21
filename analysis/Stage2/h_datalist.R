@@ -76,11 +76,12 @@ h_datalist <- function(datafilename, rawdatafilename) {
   data$site[data$Participant %in% c(data$Participant[859:875])] = 42 # Pucallpa, Perú
   data$site[data$Participant %in% c(data$Participant[876:886], data$Participant[897:901])] = 43 # Durban, South Africa
   
-  data$cohort = as.numeric(factor(paste(data$site, data$group, sep="")))
   data$idx_song = as.numeric(data$time == "Post_Experiment" & data$group == "S")
   data$idx_conv = as.numeric(data$time == "Post_Experiment" & data$group == "C")
   data$idx_reci = as.numeric(data$time == "Post_Experiment" & data$group == "R")
   data = data[with(data, order(site, group, ID, time)),]
+  cohortname = paste(data$site, data$group, sep="")
+  data$cohort = as.numeric(factor(cohortname, levels = unique(cohortname)))
   
   X = as.matrix(data.frame(intercept=1, data$idx_song, data$idx_conv, data$idx_reci))
   y = c(data$score)
