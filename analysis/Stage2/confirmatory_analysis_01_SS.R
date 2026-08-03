@@ -165,117 +165,14 @@ for(i in 1:2) {
     sampleloglik = (beta_list[k+1] - beta_list[k]) *
       sapply(1:length(sgm_pos), function(j){h_mvnlik(y, X, be_pos[,j], sgm_pos[j], s_1_pos[j], s_2_pos[j], M, n)})
     lnC = max(sampleloglik)
-    lnr_vec[k] = log(sum(exp(sampleloglik - lnC))) + lnC - log(length(sgm_pos))
+    lnr[k] = log(sum(exp(sampleloglik - lnC))) + lnC - log(length(sgm_pos))
   }
   
-  lnr_list[[i]] <- lnr_vec
-  lnZ[i] <- sum(lnr_vec)
+  lnr_list[[i]] <- lnr
+  lnZ[i] <- sum(lnr)
   cat(paste(Sys.time(), ": lnZ (i=", i, ") = ", lnZ[i], "\n", sep=""))
 }
 
 saveRDS(lnr_list, file=sprintf("./figure_ss/confirmatory_analysis_01_lnr.rds"))
 cat(paste(Sys.time(), ": lnZ = ", lnZ[1], " vs. ", lnZ[2], "\n", sep=""))
 write.csv(lnZ, "./figure_ss/confirmatory_analysis_01_lnZ.csv", row.names=FALSE)
-
-### Plot results (posterior distributions) ###
-library(ggridges)
-library(ggplot2)
-library(ggpubr)
-
-ggplotlist <- vector(mode="list", length=2)
-modelname = c("1", "0a")
-
-for(i in 1:2) {
-  df_ggplot <- possamplelist[[i]]
-  
-  df_ggplot$varname[df_ggplot$varname == 'sgm'] = 'σ'
-  df_ggplot$varname[df_ggplot$varname == 's_1'] = 'σ (cohort-level)'
-  df_ggplot$varname[df_ggplot$varname == 's_2'] = 'σ (individual-level)'
-  df_ggplot$varname[df_ggplot$varname == 'g'] = 'g'
-  df_ggplot$varname[df_ggplot$varname == 'be_1'] = 'Intercept'
-  df_ggplot$varname[df_ggplot$varname == 'be_2'] = 'Singing'
-  df_ggplot$varname[df_ggplot$varname == 'be_3'] = 'Conversation'
-  df_ggplot$varname[df_ggplot$varname == 'be_4'] = 'Recitation'
-  df_ggplot$varname <- factor(df_ggplot$varname, levels=c('g', 'σ (individual-level)',
-                                     'σ (cohort-level)', 'σ', 'Recitation',
-                                     'Conversation', 'Singing', 'Intercept'
-                                     ))
-  
-  ggplotlist[[i]] <- ggplot(df_ggplot, aes(x=samples, y=varname, group=varname)) +
-    geom_density_ridges(scale=1.2) +
-    theme_ridges() + 
-    theme(legend.position="none", axis.title.x=element_blank(), axis.title.y=element_blank()) +
-    ggtitle(paste("Posterior distribution (H", modelname[i], ")", sep="")) +
-    xlim(-10, 60)
-}
-
-g <- ggarrange(plotlist=ggplotlist, ncol=2, nrow=1)
-g <- annotate_figure(
-  g,
-  top=text_grob(
-    bquote(bold("Model comparison (" * BF[bold("10a")] == .(sprintf("%1.2e", exp(lnZ[1] - lnZ[2]))) * ")")), 
-    size=16
-  )
-)
-
-ggsave(g, dpi=1200, height=6, width=9, filename="./figure/confirmatory_analysis_01_BF.png")
-
-plot(g)
-
-for (i in 1:2) {
-  g <- traceplot(modellist[[i]], pars=c("sgm", "s_1", "s_2", "be", "g"), inc_warmup=TRUE, nrow=2)
-  figfilename <- paste("./figure/confirmatory_analysis_01_chain_", i, ".png", sep="")
-  ggsave(g, dpi=1200, height=6, width=9, filename=figfilename)
-}
-
-### Plot results (posterior predictive checks) ###
-df_ggplot <- data.frame(
-  cond=sapply(1:(2*N), function(x){ifelse(sum(datalist$X[x, 2:4]) == 0, 0, which(datalist$X[x, 2:4] == 1))}),
-  y=datalist$y,
-  y_H0=rowMeans(ppcsamplelist[[2]]),
-  y_H1=rowMeans(ppcsamplelist[[1]]),
-  Site=as.factor(datalist$data$site),
-  res_H0=rowMeans(ppcsamplelist[[2]]) - datalist$y,
-  res_H1=rowMeans(ppcsamplelist[[1]]) - datalist$y
-)
-
-condname <- c("Pre-intervention", "Post-intervention (group singing)",
-              "Post-intervention (group conversation)", "Post-intervention (group recitation)")
-
-ggplotlist <- vector(mode="list", length=4)
-for(j in 1:4) {
-  ggplotlist_j <- vector(mode="list", length=2)
-  
-  ggplotlist_j[[1]] <- ggplot(data=df_ggplot[df_ggplot$cond==(j-1), ], aes(x=y, y=y_H0, color=Site)) + 
-    geom_point() + geom_abline(slope=1, intercept=0, linetype="dashed") + xlim(0, 100) + ylim(0, 100) + 
-    xlab("Observed score") + ylab("Simulated score (H0)") + 
-    theme(axis.title.x=element_text(size = 9), axis.title.y=element_text(size = 9))
-  ggplotlist_j[[2]] <- ggplot(data=df_ggplot[df_ggplot$cond==(j-1), ], aes(x=y, y=y_H1, color=Site)) + 
-    geom_point() + geom_abline(slope=1, intercept=0, linetype="dashed") + xlim(0, 100) + ylim(0, 100) + 
-    xlab("Observed score") + ylab("Simulated score (H1)") + 
-    theme(axis.title.x=element_text(size = 9), axis.title.y=element_text(size = 9))
-  g <- ggarrange(plotlist=ggplotlist_j, ncol=2, nrow=1, legend="none")
-  g <- annotate_figure(g, top=text_grob(paste(condname[j], sep=""), face="bold", size=12))
-  
-  ggplotlist[[j]] <- g
-  ggsave(filename=paste("./figure/confirmatory_analysis_01_PPC_", j, ".png", sep=""),
-         plot=ggplotlist[[j]], width=4, height=2)
-}
-
-# dummy data to extract legend information
-df_dummy <- data.frame(x=1:30, y=1:30,
-                       Site=factor(1:30, labels=c("UK [London](1)", "Indonesia [Surakarta]", "Japan [Kanagawa]",
-                                                  "Romania [Cluj]", "India [New Delhi]", "New Zealand [Auckland] (1)",
-                                                  "New Zealand [Auckland] (2)", "Italy [Padova]", "Italy [Rome]", 
-                                                  "Czech Republic [Prague]", "Thailand [Bangkok]", "UK [Reading]",
-                                                  "Nigeria [Lagos]", "Germany [Frankfurt]", "Norway [Bergen]",
-                                                  "Colombia [Bogotá]", "Canada [Mississauga]", "Österreich [Innsbruck]",
-                                                  "UK [Nottingham]", "Australia [Gold Coast]", "UK [London] (2)",
-                                                  "USA [Amherst]", "New Zealand [Auckland] (3)", "Hungary [Budapest]",
-                                                  "Russia [Yekaterinburg]", "Poland [Poznań]", "Germany [Kaiserslautern]",
-                                                  "Korea [Seoul]", "Georgia [Tbilisi]", "Canada [Hamilton]")))
-g <- ggplot(data=df_dummy, aes(x=x, y=y, color=Site)) + geom_point() + 
-  guides(color=guide_legend(ncol=6, nrow=5, byrow=TRUE))
-gl <- as_ggplot(get_legend(g))
-ggsave(filename="./figure/confirmatory_analysis_legend.png", plot=gl, width=12, height=4)
-plot(gl)
