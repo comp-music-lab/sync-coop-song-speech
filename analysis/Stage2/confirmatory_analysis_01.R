@@ -21,7 +21,8 @@ library(rstan)
 library(rpart)
 library(posterior)
 
-rseed = 409;
+rseed = 409
+set.seed(rseed)
 modellist <- vector(mode="list", length=2)
 possamplelist <- vector(mode="list", length=2)
 ppcsamplelist <- vector(mode="list", length=2)
@@ -116,7 +117,7 @@ for(i in 1:2) {
   rhat_theta[[i]] <- t(rhat_theta[[i]])
   colnames(rhat_theta[[i]])[c(1, 2, 8)] <- c("mean", "sd", "Rhat")
   print(rhat_theta[[i]])
-  write.csv(rhat_theta[[i]], sprintf("./figure/confirmatory_analysis_01_stats_%d.csv", i), row.names=FALSE)
+  write.csv(rhat_theta[[i]], sprintf("./figure/confirmatory_analysis_01_stats_%d.csv", i), row.names=TRUE)
   
   # Bayes factor computation
   M = standata$M
