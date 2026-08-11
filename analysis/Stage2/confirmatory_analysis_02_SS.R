@@ -22,7 +22,7 @@ consmat = list(
 
 varname = c("be[1]", "be[2]", "be[3]", "be[4]", "s_1", "s_2", "sgm", "g")
 
-set.seed(409)
+set.seed(4)
 pattern = c(0, 1, 2, 3)
 modellist <- vector(mode="list", length=length(pattern))
 lnZ = rep(0, length(pattern))
@@ -44,6 +44,7 @@ source("h_mvnlik.R")
 K <- 3
 be_vec <- rbeta(K, 0.3, 1)
 be_vec <- c(0, be_vec)
+print(be_vec)
 
 for(i in c(2, 4, 1, 3)) {
   standata <- h_standata(datalist, pattern[i])
@@ -106,6 +107,59 @@ for(i in c(2, 4, 1, 3)) {
   }
 }
 
-#cat(paste(Sys.time(), ": lnZ = ", lnZ[1], " vs. ", lnZ[2], "\n", sep=""))
-#cat(paste(Sys.time(), ": lnZ = ", lnZ[3], " vs. ", lnZ[4], "\n", sep=""))
-#write.csv(lnZ, "./figure/confirmatory_analysis_02_lnZ.csv", row.names=FALSE)
+# Compute marginal likelihood and Bayes factors
+lnZ <- c(0, 0, 0, 0)
+lnr_list <- vector(mode="list", length=length(lnZ))
+
+for(i in 1:4) {
+  # Read posterior samples
+  possample_files <- list.files(path="./figure_ss/",
+                                pattern=sprintf("^confirmatory_analysis_02_possample_.*_%d\\.rds$", i))
+  
+  possample_list <- vector(mode="list", length=length(possample_files))
+  beta_list <- vector(mode="numeric", length=length(possample_files))
+  
+  for(k in 1:length(possample_files)) {
+    possample_tmp <- readRDS(paste("./figure_ss/", possample_files[k], sep=""))
+    beta_list[k] = possample_tmp[[1]]
+    possample_list[[k]] = possample_tmp[[2]]
+  }
+  
+  idx <- order(beta_list)
+  beta_list <- beta_list[idx]
+  possample_list <- possample_list[idx]
+  
+  # Compute r
+  standata <- h_standata(datalist, pattern[i])
+  M = standata$M
+  X = standata$X
+  y = standata$y
+  n = standata$n
+  p = standata$p
+    
+  beta_list <- c(beta_list, 1)
+  lnr <- vector(mode="numeric", length=length(possample_files))
+    
+  for(k in 1:length(possample_files)) {
+    possample <- possample_list[[k]]
+      
+    sgm_pos <- possample["samples"][possample["varname"] == "sgm"]
+    s_1_pos <- possample["samples"][possample["varname"] == "s_1"]
+    s_2_pos <- possample["samples"][possample["varname"] == "s_2"]
+    be_pos <- t(sapply(1:p, function(j){possample["samples"][possample["varname"] == paste("be_", j, sep="")]}))
+    
+    sampleloglik = (beta_list[k+1] - beta_list[k]) *
+      sapply(1:length(sgm_pos), function(j){h_mvnlik(y, X, be_pos[,j], sgm_pos[j], s_1_pos[j], s_2_pos[j], M, n)})
+    lnC = max(sampleloglik)
+    lnr[k] = log(sum(exp(sampleloglik - lnC))) + lnC - log(length(sgm_pos))
+  }
+    
+  lnr_list[[i]] <- lnr
+  lnZ[i] <- sum(lnr)
+  cat(paste(Sys.time(), ": lnZ (i=", i, ") = ", lnZ[i], "\n", sep=""))
+}
+
+cat(paste(Sys.time(), ": lnZ = ", lnZ[1], " vs. ", lnZ[2], " (K=", length(possample_files), ")\n", sep=""))
+cat(paste(Sys.time(), ": lnZ = ", lnZ[3], " vs. ", lnZ[4], " (K=", length(possample_files), ")\n", sep=""))
+saveRDS(lnr_list, file=sprintf("./figure_ss/confirmatory_analysis_02_lnr.rds"))
+write.csv(lnZ, "./figure_ss/confirmatory_analysis_02_lnZ.csv", row.names=FALSE)
