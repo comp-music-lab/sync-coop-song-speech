@@ -23,10 +23,13 @@ consmat = list(
 varname = c("be[1]", "be[2]", "be[3]", "be[4]", "s_1", "s_2", "sgm", "g")
 
 set.seed(4)
+stanseeds = c(1, 2, 10, 4)
 pattern = c(0, 1, 2, 3)
 modellist <- vector(mode="list", length=length(pattern))
 lnZ = rep(0, length(pattern))
-stanfile = "lmm_linconuip.stan"
+#stanfile = "lmm_linconuip.stan"
+stanfile = "lmm_linuip_all_stable_beta_direct.stan"
+#stanfile = "lmm_linuip_B.stan"
 numwarmup = c(1000, 1000, 1000, 1000)
 numiter = c(2000, 20000, 2000, 20000)
 numchains = 4
@@ -41,19 +44,20 @@ source("h_uipmvn.R")
 source("h_mvnlik.R")
 
 # Collect posterior samples based on stepping-stone sampling
-K <- 3
+K <- 50
 be_vec <- rbeta(K, 0.3, 1)
 be_vec <- c(0, be_vec)
 print(be_vec)
 
-for(i in c(2, 4, 1, 3)) {
+for(i in c(1, 3, 2, 4)) {
   standata <- h_standata(datalist, pattern[i])
-  
-  for(kk in 1:(K + 1)) {
+
+#  for(kk in 1:(K + 1)) {
+  for(kk in 22:(K + 1)) {
     standata$beta = be_vec[kk]
     
     cat(paste(Sys.time(), ": i = ", i, " (k = ", kk, ") - start\n", sep=""))
-    fit_pos <- stan(file = stanfile, data = standata, chains = numchains, 
+    fit_pos <- stan(file = stanfile, data = standata, chains = numchains, seed = stanseeds[i],
                     warmup = numwarmup[i], iter = numiter[i], cores = 4, refresh = 50,
                     include = TRUE, pars = c("sgm", "s_1", "s_2", "be", "g"))
     
@@ -90,8 +94,8 @@ for(i in c(2, 4, 1, 3)) {
     }
     
     # print result
-    rownames(rhat_theta[[i]]) <- NULL
-    print(rhat_theta[[i]])
+    rownames(rhat_theta) <- NULL
+    print(rhat_theta)
     
     be_str <- gsub(".", "", sprintf("%0.6f", standata$beta), fixed=TRUE)
     write.csv(rhat_theta, sprintf("./figure_ss/confirmatory_analysis_02_stats_%s_%d.csv", be_str, i), row.names=TRUE)
@@ -111,6 +115,24 @@ for(i in c(2, 4, 1, 3)) {
 lnZ <- c(0, 0, 0, 0)
 lnr_list <- vector(mode="list", length=length(lnZ))
 
+# Standardize number of samples
+N_set = matrix(0, nrow=K+1, ncol=4)
+for(i in 1:4) {
+  possample_files <- list.files(path="./figure_ss/",
+                                pattern=sprintf("^confirmatory_analysis_02_possample_.*_%d\\.rds$", i))
+  possample_list <- vector(mode="list", length=length(possample_files))
+  
+  for(k in 1:length(possample_files)) {
+    possample_tmp <- readRDS(paste("./figure_ss/", possample_files[k], sep=""))
+    N_set[k, i] = sum(possample_tmp[[2]]$varname == "be_1")
+  }
+}
+
+N_min_1 <- pmin(N_set[, 1], N_set[, 2])
+N_min_2 <- pmin(N_set[, 3], N_set[, 4])
+N_min <- cbind(cbind(N_min_1, N_min_1), cbind(N_min_2, N_min_2))
+
+# Compute marginal likelihood
 for(i in 1:4) {
   # Read posterior samples
   possample_files <- list.files(path="./figure_ss/",
@@ -147,6 +169,11 @@ for(i in 1:4) {
     s_1_pos <- possample["samples"][possample["varname"] == "s_1"]
     s_2_pos <- possample["samples"][possample["varname"] == "s_2"]
     be_pos <- t(sapply(1:p, function(j){possample["samples"][possample["varname"] == paste("be_", j, sep="")]}))
+    
+    sgm_pos <- sgm_pos[1:N_min[k, i]]
+    s_1_pos <- s_1_pos[1:N_min[k, i]]
+    s_2_pos <- s_2_pos[1:N_min[k, i]]
+    be_pos <- be_pos[, 1:N_min[k, i]]
     
     sampleloglik = (beta_list[k+1] - beta_list[k]) *
       sapply(1:length(sgm_pos), function(j){h_mvnlik(y, X, be_pos[,j], sgm_pos[j], s_1_pos[j], s_2_pos[j], M, n)})
