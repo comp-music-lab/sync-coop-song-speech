@@ -25,7 +25,7 @@ consmat = list(
 
 varname = c("be[1]", "be[2]", "be[3]", "be[4]", "s_1", "s_2", "sgm", "g")
 
-rseed = 2059
+set.seed(409)
 pattern = c(0, 1, 2, 3)
 modellist <- vector(mode="list", length=length(pattern))
 possamplelist <- vector(mode="list", length=length(pattern))
@@ -59,9 +59,9 @@ for(i in c(2, 4, 1, 3)) {
   
   # keep posterior samples satisfying constraints
   theta = extract(modellist[[i]], pars="be", permuted=FALSE, inc_warmup=FALSE)
-  idx_cons = sapply(1:numchain, function(k){theta[, k, ] %*% consmat[[i]] > 0})
+  idx_cons = sapply(1:numchains, function(k){theta[, k, ] %*% consmat[[i]] > 0})
   N = min(colSums(idx_cons))
-  idx_cons_N = sapply(1:numchain, function(k){which(idx_cons[, k])[1:N]})
+  idx_cons_N = sapply(1:numchains, function(k){which(idx_cons[, k])[1:N]})
   
   rhat_theta[[i]] = data.frame(
     varname=character(), mean=double(), sd=double(), 
@@ -71,7 +71,7 @@ for(i in c(2, 4, 1, 3)) {
   
   for (k in 1:length(varname)) {
     theta = extract(modellist[[i]], pars=varname[k], permuted=FALSE, inc_warmup=FALSE)
-    theta_N = sapply(1:numchain, function(k){theta[idx_cons_N[, k], k, ]})
+    theta_N = sapply(1:numchains, function(k){theta[idx_cons_N[, k], k, ]})
     rhat_theta[[i]] = rbind(rhat_theta[[i]],
                             data.frame(varame=varname[k], mean=mean(theta_N), sd=sd(theta_N),
                                        `2.5%`= quantile(theta_N, 0.025), `25%`= quantile(theta_N, 0.25), 
@@ -80,7 +80,7 @@ for(i in c(2, 4, 1, 3)) {
                             )
     possamplelist[[i]] = rbind(
       possamplelist[[i]],
-      data.frame(varname=varname[k], samples=c(theta_N), chain=rep(1:numchain, each=N), t=rep(1:N, times=numchain))
+      data.frame(varname=varname[k], samples=c(theta_N), chain=rep(1:numchains, each=N), t=rep(1:N, times=numchains))
     )
   }
   rownames(rhat_theta[[i]]) <- NULL
