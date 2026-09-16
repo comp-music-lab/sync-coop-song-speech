@@ -387,7 +387,7 @@ mv2_experimenterlog$Language[70:72] <- "Hungarian"
 mv2_experimenterlog$Location[70:72] <- "Budapest"
 #25.Row 73-75 = Russian, Yekaterinburg
 mv2_experimenterlog$Language[73:75] <- "Russian"
-mv2_experimenterlog$Location[73:75] <- "Ekaterinburg"
+mv2_experimenterlog$Location[73:75] <- "Yekaterinburg"
 #26.Row 76-78 = Polish, Poland
 mv2_experimenterlog$Language[76:78] <- "Polish"
 mv2_experimenterlog$Location[76:78] <- "Poland"
@@ -445,7 +445,7 @@ mv2_experimenterlog$Language[126:127] <- "German"
 mv2_experimenterlog$Location[126:127] <- "Vienna"
 #41.Row 118-120 = Mandarin, Ann arbor
 mv2_experimenterlog$Language[118:120] <- "Mandarin"
-mv2_experimenterlog$Location[118:120] <- "Ann arbor"
+mv2_experimenterlog$Location[118:120] <- "Ann Arbor"
 #42.Row 122-123;128 = Shipibo-Konibo, Perú
 mv2_experimenterlog$Language[122:123] <- "Shipibo-Konibo"
 mv2_experimenterlog$Location[122:123] <- "Perú"
@@ -1198,7 +1198,6 @@ ggsave(
 
 6.4 Linear mixed-effects model results in Table S5-S13. 
 ```{r}
-
 mv2_model_scaled <- mv2_model %>%
   mutate(
     across(c(pre_bonding_score, post_bonding_score,
@@ -1259,6 +1258,19 @@ extract_beta <- function(m_std) {
     dplyr::select(term, beta = estimate)
 }
 
+print_random_effects <- function(m, model_label, group_name) {
+  vc <- as.data.frame(VarCorr(m))
+  var_site     <- vc$vcov[vc$grp == "site"]
+  var_residual <- vc$vcov[vc$grp == "Residual"]
+
+  cat(sprintf(
+    "\nRandom effects (%s, %s):\n  Site:     Variance = %.3f, SD = %.3f\n  Residual: Variance = %.3f, SD = %.3f\n",
+    model_label, group_name,
+    var_site,     sqrt(var_site),
+    var_residual, sqrt(var_residual)
+  ))
+}
+
 table1_list <- list()  # 4 variables: model comparison
 table2_list <- list()  # 4 variables: Full model
 table3_list <- list()  # 7 variables: model comparison
@@ -1299,7 +1311,7 @@ for (g in c("S", "C", "R")) {
   table1_list[[g]] <- bind_rows(
     get_model_stats(m1a, "Model 1: Baseline only",   group_labels[g]),
     get_model_stats(m2a, "Model 2: + Controls",      group_labels[g]),
-    get_model_stats(m3a, "Model 3: + Task (3 vars)", group_labels[g])
+    get_model_stats(m3a, "Model 3: + Task (4 vars)", group_labels[g])
   )
   cat("\n--- Table 1:", group_labels[g], "---\n"); print(table1_list[[g]])
 
@@ -1320,6 +1332,7 @@ for (g in c("S", "C", "R")) {
     dplyr::select(Group, term_clean, B = estimate, SE = std.error, beta,
                   t = statistic, conf.low, conf.high, p.value, sig)
   cat("\n--- Table 2:", group_labels[g], "---\n"); print(table2_list[[g]])
+  print_random_effects(m3a, "Model 3: + Task (4 vars)", group_labels[g])   # 新增
 
   # ---------------- Seven explanatory variables (baseline/controls are the same as the 3-variable version, reuse directly) ----------------
   m1b <- m1a
@@ -1344,7 +1357,7 @@ for (g in c("S", "C", "R")) {
   table3_list[[g]] <- bind_rows(
     get_model_stats(m1b, "Model 1: Baseline only",   group_labels[g]),
     get_model_stats(m2b, "Model 2: + Controls",      group_labels[g]),
-    get_model_stats(m3b, "Model 3: + Task (6 vars)", group_labels[g])
+    get_model_stats(m3b, "Model 3: + Task (7 vars)", group_labels[g])
   )
   cat("\n--- Table 3:", group_labels[g], "---\n"); print(table3_list[[g]])
 
@@ -1365,6 +1378,7 @@ for (g in c("S", "C", "R")) {
     dplyr::select(Group, term_clean, B = estimate, SE = std.error, beta,
                   t = statistic, conf.low, conf.high, p.value, sig)
   cat("\n--- Table 4:", group_labels[g], "---\n"); print(table4_list[[g]])
+  print_random_effects(m3b, "Model 3: + Task (7 vars)", group_labels[g])   # 新增
 }
 
 
@@ -1375,6 +1389,7 @@ cat("\n=== Table 2: Four explanatory variables - Full Model ===\n");         bin
 cat("\n=== Table 3: Seven explanatory variables - Model comparison ===\n");     bind_rows(table3_list) %>% print()
 cat("\n=== Table 4: Seven explanatory variables - Full Model ===\n");           bind_rows(table4_list) %>% print()
 ```
+
 
 
 
@@ -1491,6 +1506,7 @@ cat("\nDone. Figures saved.\n")
 
 7.2 Public goods game - effects of age and gender on 
 ```{r}
+options(scipen = 999) 
 
 if (!"site" %in% names(mv2)) {
   mv2 <- mv2 %>% mutate(site = paste(Language, Location, sep = " - "))
@@ -1575,11 +1591,17 @@ all_fixed_tbl <- all_fixed_tbl %>%
   dplyr::mutate(p_FDR_across_groups = p.adjust(`Pr(>|t|)`, method = "BH")) %>%
   dplyr::ungroup()
 
+print_tbl <- all_fixed_tbl %>%
+  dplyr::mutate(
+    `Pr(>|t|)`           = format(round(`Pr(>|t|)`, 4), scientific = FALSE),
+    p_FDR_across_groups  = format(round(p_FDR_across_groups, 4), scientific = FALSE)
+  )
+
 cat("\n\n============================================================\n")
 cat("FIXED EFFECTS + 95% CI, ALL THREE GROUP-SPECIFIC MODELS\n")
-print(all_fixed_tbl)
-
+print(print_tbl)
 ```
+
 
 
 
@@ -1876,10 +1898,8 @@ label_levels <- c("Singing", "Conversation", "Recitation")
 
 raw_all  <- list()
 
-
 for (g in c("S", "R", "C")) {
   sub_df <- mv2 %>% filter(group == g)
-  
   
   sub_df$group_label <- factor(group_labels[g], levels = label_levels)
   raw_all[[g]] <- sub_df
@@ -1894,17 +1914,68 @@ agg_combined <- raw_combined %>%
     Num_of_participants = mean(Num_of_participants, na.rm = TRUE),
     .groups = "drop"
   )
-lm_labels <- raw_combined %>%
-  group_by(group, group_label) %>%
-  summarise(
-    coef_pre  = round(coef(lm(post_bonding_score ~ pre_bonding_score + Num_of_participants))[2], 2),
-    coef_num  = round(coef(lm(post_bonding_score ~ pre_bonding_score + Num_of_participants))[3], 2),
-    intercept = round(coef(lm(post_bonding_score ~ pre_bonding_score + Num_of_participants))[1], 2),
-    .groups   = "drop"
-  ) %>%
-  mutate(
-  label = sprintf("β = %.2f", coef_num)
-)
+
+
+lm_models      <- list()
+lm_labels_list <- list()
+lm_fixed_tbls  <- list()
+
+for (g in c("S", "R", "C")) {
+  df_g    <- raw_combined %>% filter(group == g)
+  label_g <- group_labels[g]
+
+  m <- lm(post_bonding_score ~ pre_bonding_score + Num_of_participants, data = df_g)
+  lm_models[[g]] <- m
+
+  cat(sprintf("\n============================================================\n"))
+  cat(sprintf("Group: %s\n", label_g))
+  cat(sprintf("============================================================\n"))
+  print(summary(m))
+
+  co <- coef(m)
+  lm_labels_list[[g]] <- data.frame(
+    group       = g,
+    group_label = factor(label_g, levels = label_levels),
+    intercept   = round(co[1], 2),
+    coef_pre    = round(co[2], 2),
+    coef_num    = round(co[3], 2)
+  )
+
+  coefs <- as.data.frame(summary(m)$coefficients)
+  coefs$term <- rownames(coefs)
+  rownames(coefs) <- NULL
+
+  ci <- as.data.frame(confint(m))
+  ci$term <- rownames(ci)
+  names(ci)[names(ci) == "2.5 %"]  <- "CI_low"
+  names(ci)[names(ci) == "97.5 %"] <- "CI_high"
+  rownames(ci) <- NULL
+
+  tbl <- coefs %>%
+    dplyr::left_join(ci, by = "term") %>%
+    dplyr::mutate(
+      group = label_g,
+      df    = m$df.residual 
+    ) %>%
+    dplyr::select(group, term, Estimate, `Std. Error`, CI_low, CI_high,
+                  df, `t value`, `Pr(>|t|)`)
+
+  lm_fixed_tbls[[g]] <- tbl
+}
+
+lm_labels <- bind_rows(lm_labels_list) %>%
+  mutate(label = sprintf("β = %.2f", coef_num))
+
+
+lm_fixed_tbl <- dplyr::bind_rows(lm_fixed_tbls)
+
+print_lm_tbl <- lm_fixed_tbl %>%
+  dplyr::mutate(`Pr(>|t|)` = format(round(`Pr(>|t|)`, 3), scientific = FALSE))
+
+cat("\n\n============================================================\n")
+cat("FIXED EFFECTS + 95% CI, ALL THREE GROUP-SPECIFIC LM MODELS\n")
+cat("============================================================\n")
+print(print_lm_tbl)
 
 ggplot() +
   
@@ -1950,5 +2021,7 @@ ggsave(
   width = 12, height = 4.5, dpi = 300
 )
 ```
+
+
 
 
