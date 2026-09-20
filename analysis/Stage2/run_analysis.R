@@ -1,5 +1,3 @@
 source("confirmatory_analysis_01.R")
 source("confirmatory_analysis_02.R")
-#source("exploratory_analysis_01.R")
-source("exploratory_analysis_02.R")
-source("exploratory_analysis_03.R")
+source("expectancy_analysis.R")
