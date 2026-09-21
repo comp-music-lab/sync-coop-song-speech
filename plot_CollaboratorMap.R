@@ -1,10 +1,11 @@
 ##
-library(ggplot2)
-library(sf)
-library(rnaturalearth)
-library(rnaturalearthdata)
-library(gridExtra)
-library(grid)
+#Install packages (now moved these to be installed as part of main 'run_all.R' script)
+#library(ggplot2)
+#library(sf)
+#library(rnaturalearth)
+#library(rnaturalearthdata)
+#library(gridExtra)
+#library(grid)
 
 ##
 INTERVAL <- 5
