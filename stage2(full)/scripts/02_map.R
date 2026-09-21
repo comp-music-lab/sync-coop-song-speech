@@ -12,7 +12,6 @@ INTERVAL <- 5
 SUBGROUPING <- TRUE
 
 ##
-collabT <- read.csv(collaboratorinfofile)
 
 langlabel <- data.frame(Name = collabT$Name,
                         Lang = collabT$ProvidedLanguageName,
@@ -116,11 +115,11 @@ gobj <- ggplot(data = world) + theme_set(theme_bw()) +
   scale_fill_manual(values = LANGCOLORMAP$rgb, breaks = LANGCOLORMAP$languagefamily)
 
 ##
-ggsave(file = paste(OUTPUTDIR, "CollabMap_", fileid, ".png", sep = ""), plot = gobj, width = 8, height = 7)
-write.csv(file = paste(OUTPUTDIR, "langlabel.csv", sep = ""), langlabel)
+ggsave(file = paste(stage2figs, "fig2map_", fileid, ".png", sep = ""), plot = gobj, width = 8, height = 7)
+write.csv(file = paste(stage2figs, "langlabel.csv", sep = ""), langlabel)
 
 ##
-png(paste(OUTPUTDIR, "langfamily-colorcode.png", sep = ""), width = 500, height = 500)
+png(paste(stage2figs, "langfamily-colorcode.png", sep = ""), width = 500, height = 500)
 col2rgb(cols)
 scales::show_col(cols)
 dev.off()

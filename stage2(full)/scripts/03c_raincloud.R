@@ -66,7 +66,7 @@ p11 <- ggplot(rep_data, aes(x = time, y = score, fill = group)) +
   ylim(0,100)+ 
   ggtitle('pre-/post-intervention bonding')
 
-ggsave(file = file.path(stage2figs,'fig5.png'), width = w, height = h)
+ggsave(file = file.path(stage2figs,'fig5raincloud.png'), width = w, height = h)
 
 p11
 

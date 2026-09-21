@@ -4,7 +4,7 @@ output: html_document
 date: "2026-04-14"
 ---
 
-1. Load relevant packages
+1. Load relevant packages #Let's unify these with the other package loading in the "00_run_all.R" file 
 ```{r}
 library(tidyverse)
 library(dplyr)
@@ -28,7 +28,7 @@ library(psych)
 
 2. Read the form (it has been cleaned)
 ```{r}
-mv2 <- read.csv("/Users/betty/Desktop/Manyvoices2/stage2data.csv")
+mv2 <- read.csv("/Users/betty/Desktop/Manyvoices2/stage2data.csv") #change from hard-coding to stage 2 raw data directory (see Line 10 of 00_run_all.R: 'stage2processed <-'./stage2(full)/data/raw/')
 ```
 
 3. Rename the first-row question labels to shorter variable names for ease of processing.
@@ -285,7 +285,7 @@ mv2$Location[982:991] <- "South Africa"
 
 4.2 Preprocessing - add Language and Location for experimenlog.csv
 ```{r}
-mv2_experimenterlog <- read.csv("/Users/betty/Desktop/Manyvoices2/experimentlog.csv")
+mv2_experimenterlog <- read.csv("/Users/betty/Desktop/Manyvoices2/experimentlog.csv") #change from hard-coding to stage 2 raw data directory (see Line 10 of 00_run_all.R: 'stage2processed <-'./stage2(full)/data/raw/')
 
 # Classifying data in terms of language and location
 mv2_experimenterlog$Language <- NA
@@ -553,11 +553,11 @@ print(table(mv2$Num_of_participants))
 dir.create("/Users/betty/Desktop/Manyvoices2/Results/Table", 
            recursive = TRUE, showWarnings = FALSE)
 write.csv(mv2, file = "/Users/betty/Desktop/Manyvoices2/Results/Table/mv2_cleaned.csv", 
-          row.names = FALSE) 
+          row.names = FALSE) #change from hard-coding to stage 2 processed data directory (see Line 10 of 00_run_all.R: 'stage2processed <-'./stage2(full)/data/processed/')
 ```
-5. Exploratorary analysis - cross cultural variation in vocalisation-bonding relationship
+5. Exploratory analysis - cross cultural variation in vocalisation-bonding relationship
 
-5.1 This can be used for creating Figure 6 in main text & Figure S5-S6 in supplemenrtary materials. 
+5.1 This can be used for creating Figure 6 in main text & Figure S5-S6 in supplementary materials. 
 ```{r}
 
 
@@ -649,11 +649,11 @@ ggplot(site_data, aes(x = mean_diff, y = site, color = group)) +
   )
 
 dir.create("/Users/betty/Desktop/Manyvoices2/Results/Figure", 
-           recursive = TRUE, showWarnings = FALSE)
+           recursive = TRUE, showWarnings = FALSE) #Change from hard-coding to stage 2 figure output directory (see Line 11 of 00_run_all.R: stage2figs<-'./stage2(full)/outputs/figures/')
 ggsave(
   "/Users/betty/Desktop/Manyvoices2/Results/Figure/site_bonding_diff.png",
   width = 10, height = 12, dpi = 300
-)
+) #add figure number to output file name (e.g., "fig6site_bonding_diff.png") and change from hard-coding to stage 2 figure output directory (see Line 11 of 00_run_all.R: stage2figs<-'./stage2(full)/outputs/figures/' - etc. for rest of this file)
 
 # Figure S5 - Raw difference（Post - Pre）
 site_data_raw <- mv2 %>%
@@ -2021,7 +2021,3 @@ ggsave(
   width = 12, height = 4.5, dpi = 300
 )
 ```
-
-
-
-
