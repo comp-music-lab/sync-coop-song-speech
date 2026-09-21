@@ -4,6 +4,14 @@
 #Set working directory
 setwd('/Users/psav050/Documents/GitHub/sync-coop-song-speech')#NB: You need to set this to your own local working directory to reproduce the analysis
 
+#Set output directories (relative to working directory)
+stage1raw <-'./stage1(pilot)/data/raw/'
+stage1processed <-'./stage1(pilot)/data/processed/'
+stage1figs<-'./stage1(pilot)/figures/'
+stage2raw <-'./stage2(full)/data/raw/'
+stage2processed <-'./stage2(full)/data/processed/'
+stage2figs<-'./stage2(full)/figures/'
+
 #Install and load packages
 if (!require(remotes)) { install.packages('remotes') } 
 remotes::install_github('jorvlan/raincloudplots') 
@@ -30,19 +38,14 @@ library(grid)
 knitr::opts_chunk$set(fig.width=6, fig.height=3, fig.path='figs/',
                       echo=FALSE, warning=FALSE, message=FALSE)
 
-#Load raincloud plot scripts
-source('R_rainclouds.R')
-source('summarySE.R')
-source('simulateData.R')
+##Data pre-processing (removing/cleaning unpublishable data to make it ready for sharing - scripts included for transparency but commented out since original files cannot be shared until this processing step is complete)
+source("01_preprocessing.R")
+##load public raw data directly from GitHub
+df<-read_csv(file='https://raw.githubusercontent.com/comp-music-lab/sync-coop-song-speech/refs/heads/main/stage2(full)/data/raw/stage2data.csv') #read full raw data file of Stage 2 participant data directly from GitHub
+df <- df[-1] #remove ID row
+e<-read_csv(file='https://raw.githubusercontent.com/comp-music-lab/sync-coop-song-speech/refs/heads/main/stage2(full)/data/raw/experimentlog.csv') #read full raw data file of Stage 2 experimenter log data directly from GitHub
 
-##Data preprocessing (removing/cleaning unpublishable data to make it ready for sharing - scripts included for transparency but commented out since original files cannot be shared until this processing step is complete)
-OUTPUTDIR <- './data/raw/'
-source("mv2preprocessing.R")
-
-##Create Fig. 5 (raincloud plot pre-/post-experiment social bonding)
-source ("raincloud.R")
-
-## Map figure
+## Create map (Fig. 2)
 rm(list = ls())
 collaboratorinfofile <- './data/CollaboratorsPlotData.csv'
 OUTPUTDIR <- './output/figure/'
@@ -53,3 +56,11 @@ source("plot_CollaboratorMap.R")
 
 fileid <- "final"
 source("plot_CollaboratorMap.R")
+
+##Create Fig. 5 (raincloud plot pre-/post-experiment social bonding)
+#Load raincloud plot scripts
+source('R_rainclouds.R')
+source('summarySE.R')
+source('simulateData.R')
+#Run raincloud analysis
+source ("raincloud.R")

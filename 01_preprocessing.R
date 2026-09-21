@@ -13,7 +13,7 @@ e[114,24]<-"90" #correct experimenter entry error
 e[115,24]<-"90" #correct experimenter entry error
 e[116,24]<-"90" #correct experimenter entry error
 
-write.csv(e,file = file.path(OUTPUTDIR,'experimentlog.csv')) #Write processed experiment log data file to data/raw directory
+write.csv(e,file = file.path(stage2raw,'experimentlog.csv')) #Write processed experiment log data file to data/raw directory
 
 #Load participant data
 df<-read_csv(file='/Users/psav050/Documents/Research/Publications/Accepted/Jia Ozaki Pavlovich et al (2025) PCI-RR Many Voices 2/MV2 real data/SpeechSong_London_Chinese_March 21, 2025_20.44_unifiedrows.csv') #import from separate Qualtrics account output - not shared publicly
@@ -99,4 +99,4 @@ df<-df[-c(1:2),] #remove non-data rows
 df<- subset(df, `Response Type`=="IP Address") #Remove test ("Preview") responses
 df$`IP Address`="NA"#Remove IP address data
 df$`Response ID`="NA"#Remove Response ID data
-write.csv(df,file = file.path(OUTPUTDIR,'stage2data.csv')) #Write processed participant data file to data/raw directory
+write.csv(df,file = file.path(stage2raw,'stage2data.csv')) #Write processed participant data file to data/raw directory

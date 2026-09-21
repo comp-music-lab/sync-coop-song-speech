@@ -4,18 +4,13 @@
 # width and height variables for saved plots
 w = 6
 h = 3
-# Make the figure folder if it doesn't exist yet
-dir.create('../figs/tutorial_R/', showWarnings = FALSE)
 
 head(summary_simdat)
 
-##Start here to reproduce analyses
-df<-read_csv(file='https://raw.githubusercontent.com/comp-music-lab/sync-coop-song-speech/refs/heads/main/stage2data.csv') #read full raw data file of Stage 2 participant data directly from GitHub
-df <- df[-1] #remove ID row
-df<-df[,c(19,20,22,24,26,28,29,31,33,35,37,40,41,42,44)] #keep only social bonding and key variables for confirmatory analysis
-
-write.csv(df,'keydata.csv')
-rep_data<-read_csv(file='keydata.csv')
+##
+keydata<-df[,c(19,20,22,24,26,28,29,31,33,35,37,40,41,42,44)] #keep only social bonding and key variables for confirmatory analysis
+write.csv(keydata,file = file.path(stage2processed,'keydata.csv'))
+rep_data<-read_csv(file = file.path(stage2processed,'keydata.csv'))
 rep_data<- subset(rep_data, attention>49) #Exclude participants failing attention check
 
 #Rename variables:
@@ -32,7 +27,6 @@ names(rep_data)[names(rep_data) == 'How much do you agree with the following sta
 names(rep_data)[names(rep_data) == 'How close do you feel to all the other participants? - 1...9'] <- 'close'
 names(rep_data)[names(rep_data) == 'How close do you feel to all the other participants? - 1...16'] <- 'close'
 
-
 #combine same variables to measure consistency
 bind<-rbind(rep_data[,4:9],rep_data[,c(10:13,15:16)])
 
@@ -47,9 +41,9 @@ rep_data$Post_Experiment<-rowMeans(rep_data[,c(10:13,15:16)]) #post-experiment a
 
 data_long <- gather(rep_data, time, score, Pre_Experiment:Post_Experiment, factor_key=TRUE)
 colnames(data_long)[1] <- 'Participant'
-write.csv(data_long,'keydata_long.csv')
+write.csv(data_long,file = file.path(stage2processed,'keydata_long.csv'))
 
-rep_data<-read_csv(file='keydata_long.csv',
+rep_data<-read_csv(file = file.path(stage2processed,'keydata_long.csv'),
                    col_types = cols(group = col_factor(levels = c('S', 'C', 'R')), 
                                     time = col_factor(levels = c('Pre_Experiment', 'Post_Experiment'))))
 rep_data<-rep_data[,-1]
@@ -72,17 +66,14 @@ p11 <- ggplot(rep_data, aes(x = time, y = score, fill = group)) +
   ylim(0,100)+ 
   ggtitle('pre-/post-intervention bonding')
 
-ggsave('3Conditions.png', width = w, height = h)
+ggsave(file = file.path(stage2figs,'fig5.png'), width = w, height = h)
 
 p11
 
 #Calculate mean % pre-post increase
-(sumrepdat$score_mean[2]-sumrepdat$score_mean[1])/sumrepdat$score_mean[1] #singing
-(sumrepdat$score_mean[4]-sumrepdat$score_mean[3])/sumrepdat$score_mean[3] #conversation
-(sumrepdat$score_mean[6]-sumrepdat$score_mean[5])/sumrepdat$score_mean[5] #recitation
+print((sumrepdat$score_mean[2]-sumrepdat$score_mean[1])/sumrepdat$score_mean[1]) #singing %increase
+print((sumrepdat$score_mean[4]-sumrepdat$score_mean[3])/sumrepdat$score_mean[3]) #conversation %increase
+print((sumrepdat$score_mean[6]-sumrepdat$score_mean[5])/sumrepdat$score_mean[5]) #recitation %increase
 
 #Calculate total n
-sumrepdat$N[2]+sumrepdat$N[4]+sumrepdat$N[6]
-
-
-
+print(sumrepdat$N[2]+sumrepdat$N[4]+sumrepdat$N[6])
