@@ -56,7 +56,8 @@ for(i in 1:2) {
   print(paste("Stan object data size is", round(object.size(fit_pos)/(1024*1024), 2), "MB"))
   print(fit_pos, pars=c("sgm", "s_1", "s_2", "be", "g"))
   modellist[[i]] <- fit_pos
-  saveRDS(fit_pos, here(herepath_model, sprintf("confirmatory_analysis_01_model_%d.rds", i)))
+  fit_pos_slim <- as.data.frame(fit_pos, pars = c("sgm", "s_1", "s_2", "be", "g"))
+  saveRDS(fit_pos_slim, here(herepath_model, sprintf("confirmatory_analysis_01_model_%d.rds", i)))
   
   # Gather posterior samples
   if(model_H0[i] == 0) {
