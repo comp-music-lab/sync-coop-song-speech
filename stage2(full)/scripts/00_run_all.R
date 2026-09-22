@@ -12,11 +12,20 @@ stage2processed <-'./stage2(full)/data/processed/'
 stage2figs<-'./stage2(full)/outputs/figures/'
 
 #Install and load packages
+#IMPORTANT: rstan installation requires configuration of C++. Please also check:
+#https://github.com/stan-dev/rstan/wiki/rstan-Getting-Started
+if(length(setdiff('rstan', rownames(installed.packages()))) > 0) {
+  install.packages("rstan", repos = "https://cloud.r-project.org/", dependencies = TRUE)
+}
+
 if (!require(remotes)) { install.packages('remotes') } 
 remotes::install_github('jorvlan/raincloudplots') 
 
-packages <- c('ggplot2', 'dplyr', 'lavaan', 'plyr', 'cowplot', 'rmarkdown', 
-              'readr', 'caTools', 'bitops', 'xfun','psych','knitr','forcats','GPArotation','tidyr','sf','rnaturalearth','rnaturalearthdata','gridExtra','grid','here')
+packages <- c('ggplot2', 'ggridges', 'ggpubr','gridExtra', 'cowplot', 'grid',
+              'dplyr', 'plyr', 'tidyr', 'lavaan', 'rmarkdown', 
+              'readr', 'caTools', 'bitops', 'xfun','psych','knitr','forcats',
+              'GPArotation','sf','rnaturalearth', 'rnaturalearthdata',
+              'here', 'rpart', 'posterior')
 
 if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
   install.packages(setdiff(packages, rownames(installed.packages())))  
