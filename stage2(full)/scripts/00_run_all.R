@@ -36,8 +36,9 @@ library(grid)
 knitr::opts_chunk$set(fig.width=6, fig.height=3, fig.path='figs/',
                       echo=FALSE, warning=FALSE, message=FALSE)
 
-##Data pre-processing (removing/cleaning unpublishable data to make it ready for sharing - scripts included for transparency but commented out since original files cannot be shared until this processing step is complete)
-source(file = file.path(stage2scripts,'01_preprocessing.R'))
+##Data pre-processing (removing/cleaning unpublishable data to make it ready for sharing
+#source(file = file.path(stage2scripts,'01_preprocessing.R')) #scripts included for transparency but commented out since original files cannot be shared until this processing step is complete
+
 ##load public raw data directly from GitHub
 df<-read_csv(file='https://raw.githubusercontent.com/comp-music-lab/sync-coop-song-speech/refs/heads/main/stage2(full)/data/raw/stage2data.csv') #read full raw data file of Stage 2 participant data directly from GitHub
 df <- df[-1] #remove ID row
