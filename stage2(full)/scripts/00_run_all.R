@@ -61,7 +61,8 @@ source(file = file.path(stage2scripts,'03c_raincloud.R'))
 source(file = file.path(stage2scripts,'05_exploratory_analysis-expectancy.R'))
 
 ##Run other exploratory analyses (Figs. 6 on)
-#source(file = file.path(stage2scripts,'04_exploratory_analyses.Rmd')) #How do we execute an R markdown script from within a master script?
+source(knitr::purl(file.path(stage2scripts, '04_exploratory_analyses.Rmd'),
+                   output = tempfile(fileext = '.R'), quiet = TRUE))
 
 ##Run confirmatory Bayesian analyses (Tables 1, S4, and S14)
 #Run analyses for Research Question 1 ("Does singing enhance social bonding?")
