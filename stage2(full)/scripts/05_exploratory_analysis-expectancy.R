@@ -1,8 +1,9 @@
 ### Load library ###
+library(here)
 library(ggplot2)
 
 ### Load data ###
-datafilepath = "../data/processed/"
+datafilepath = here("stage2(full)/data/processed/")
 df_rawdata <- read.csv(
   paste(datafilepath, "mv2_cleaned_coding_merged.csv", sep=""),
   header = TRUE)

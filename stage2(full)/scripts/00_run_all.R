@@ -1,6 +1,7 @@
 #Master script used to perform the analyses reported in:
 #Jia, Z., Ozaki, Y., Pavlovich, D. V., Huang, J., Benetos, E., Khasanah, U., Calhoun, S., Chiba, G., Kitayama, Y., Fujii, S., Sadaphal, D. P., Fitch, W. T., Vaida, S., Echim, S., Popescu, T., Shi, Z., Grassi, M., Guiotto Nai Fovino, L., Hajič jr., J., Nuska, P., …, Savage, P. E. (In Principle Accepted). Synchronised group singing enhances social bonding more than group conversation or recitation does: A Registered Report across 30 languages. Peer Community In Registered Reports. Preprint: https://doi.org/10.31234/osf.io/pv3m9_v6 [Peer Community In Registered Reports editorial recommendation and peer review: https://rr.peercommunityin.org/articles/rec?id=890]
 
+#IMPORTANT: Set working directory to the root of the project (sync-coop-song-speech)
 #Set output directories (relative to working directory)
 stage2scripts <-'./stage2(full)/scripts/'
 stage1raw <-'./stage1(pilot)/data/raw/'
@@ -57,14 +58,14 @@ source(file = file.path(stage2scripts,'03b_summarySE.R'))
 source(file = file.path(stage2scripts,'03c_raincloud.R'))
 
 ##Run expectancy exploratory analyses (Table 2)
-#source(file = file.path(stage2scripts,'05_exploratory_analysis-expectancy.R')) #need to unify directory structure to make this work
+source(file = file.path(stage2scripts,'05_exploratory_analysis-expectancy.R')) #need to unify directory structure to make this work
 
 ##Run other exploratory analyses (Figs. 6 on)
 #source(file = file.path(stage2scripts,'04_exploratory_analyses.Rmd')) #How do we execute an R markdown script from within a master script?
 
 ##Run confirmatory Bayesian analyses (Tables 1, S4, and S14)
 #Run analyses for Research Question 1 ("Does singing enhance social bonding?")
-#source(file = file.path(stage2scripts,'06_confirmatory_analysis_01.R')) #need to unify directory structure to make this work
+source(file = file.path(stage2scripts,'06_confirmatory_analysis_01.R')) #need to unify directory structure to make this work
 
 #Run analyses for Research Question 2 ("Does singing enhance social bonding more than)
-#source(file = file.path(stage2scripts,'07_confirmatory_analysis_02.R')) #need to unify directory structure to make this work
+source(file = file.path(stage2scripts,'07_confirmatory_analysis_02.R')) #need to unify directory structure to make this work
