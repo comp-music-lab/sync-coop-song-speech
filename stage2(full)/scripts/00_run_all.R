@@ -15,7 +15,7 @@ if (!require(remotes)) { install.packages('remotes') }
 remotes::install_github('jorvlan/raincloudplots') 
 
 packages <- c('ggplot2', 'dplyr', 'lavaan', 'plyr', 'cowplot', 'rmarkdown', 
-              'readr', 'caTools', 'bitops', 'xfun','psych','knitr','forcats','GPArotation','tidyr','sf','rnaturalearth','rnaturalearthdata','gridExtra','grid')
+              'readr', 'caTools', 'bitops', 'xfun','psych','knitr','forcats','GPArotation','tidyr','sf','rnaturalearth','rnaturalearthdata','gridExtra','grid','here')
 
 if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
   install.packages(setdiff(packages, rownames(installed.packages())))  
@@ -48,10 +48,22 @@ collabT<-read_csv(file='https://github.com/comp-music-lab/sync-coop-song-speech/
 fileid <- "stage2"
 source(file = file.path(stage2scripts,'02_map.R'))
 
-##Create Fig. 5 (raincloud plot pre-/post-experiment social bonding)
+##Create Fig. 5 (raincloud visualisation of confirmatory analysis comparing pre-/post-experiment social bonding)
 #Load raincloud plot scripts
 source(file = file.path(stage2scripts,'03a_R_rainclouds.R'))
 source(file = file.path(stage2scripts,'03b_summarySE.R'))
-
-#Run raincloud analysis
+#Create raincloud plots
 source(file = file.path(stage2scripts,'03c_raincloud.R'))
+
+##Run expectancy exploratory analyses (Table 2)
+#source(file = file.path(stage2scripts,'05_exploratory_analysis-expectancy.R')) #need to unify directory structure to make this work
+
+##Run other exploratory analyses (Figs. 6 on)
+#source(file = file.path(stage2scripts,'04_exploratory_analyses.Rmd')) #How do we execute an R markdown script from within a master script?
+
+##Run confirmatory Bayesian analyses (Tables 1, S4, and S14)
+#Run analyses for Research Question 1 ("Does singing enhance social bonding?")
+#source(file = file.path(stage2scripts,'06_confirmatory_analysis_01.R')) #need to unify directory structure to make this work
+
+#Run analyses for Research Question 2 ("Does singing enhance social bonding more than)
+#source(file = file.path(stage2scripts,'07_confirmatory_analysis_02.R')) #need to unify directory structure to make this work
