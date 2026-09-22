@@ -58,14 +58,14 @@ source(file = file.path(stage2scripts,'03b_summarySE.R'))
 source(file = file.path(stage2scripts,'03c_raincloud.R'))
 
 ##Run expectancy exploratory analyses (Table 2)
-source(file = file.path(stage2scripts,'05_exploratory_analysis-expectancy.R')) #need to unify directory structure to make this work
+source(file = file.path(stage2scripts,'05_exploratory_analysis-expectancy.R'))
 
 ##Run other exploratory analyses (Figs. 6 on)
 #source(file = file.path(stage2scripts,'04_exploratory_analyses.Rmd')) #How do we execute an R markdown script from within a master script?
 
 ##Run confirmatory Bayesian analyses (Tables 1, S4, and S14)
 #Run analyses for Research Question 1 ("Does singing enhance social bonding?")
-source(file = file.path(stage2scripts,'06_confirmatory_analysis_01.R')) #need to unify directory structure to make this work
+source(file = file.path(stage2scripts,'06_confirmatory_analysis_01.R'))
 
 #Run analyses for Research Question 2 ("Does singing enhance social bonding more than)
-source(file = file.path(stage2scripts,'07_confirmatory_analysis_02.R')) #need to unify directory structure to make this work
+source(file = file.path(stage2scripts,'07_confirmatory_analysis_02.R'))
