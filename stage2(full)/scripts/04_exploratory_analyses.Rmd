@@ -28,7 +28,7 @@ library(psych)
 
 2. Read the form (it has been cleaned)
 ```{r}
-mv2 <- read.csv("/Users/betty/Desktop/Manyvoices2/stage2data.csv") #change from hard-coding to stage 2 raw data directory (see Line 10 of 00_run_all.R: 'stage2processed <-'./stage2(full)/data/raw/')
+mv2 <- read.csv(file.path(stage2raw, "stage2data.csv"))
 ```
 
 3. Rename the first-row question labels to shorter variable names for ease of processing.
@@ -285,7 +285,7 @@ mv2$Location[982:991] <- "South Africa"
 
 4.2 Preprocessing - add Language and Location for experimenlog.csv
 ```{r}
-mv2_experimenterlog <- read.csv("/Users/betty/Desktop/Manyvoices2/experimentlog.csv") #change from hard-coding to stage 2 raw data directory (see Line 10 of 00_run_all.R: 'stage2processed <-'./stage2(full)/data/raw/')
+mv2_experimenterlog <- read.csv(file.path(stage2raw, "experimentlog.csv"))
 
 # Classifying data in terms of language and location
 mv2_experimenterlog$Language <- NA
@@ -550,10 +550,7 @@ cat("Number of rows after merging:", nrow(mv2), "\n")
 cat("Group size distribution:\n")
 print(table(mv2$Num_of_participants))
 
-dir.create("/Users/betty/Desktop/Manyvoices2/Results/Table", 
-           recursive = TRUE, showWarnings = FALSE)
-write.csv(mv2, file = "/Users/betty/Desktop/Manyvoices2/Results/Table/mv2_cleaned.csv", 
-          row.names = FALSE) #change from hard-coding to stage 2 processed data directory (see Line 10 of 00_run_all.R: 'stage2processed <-'./stage2(full)/data/processed/')
+write.csv(mv2, file = file.path(stage2processed, "mv2_cleaned.csv"), row.names = FALSE)
 ```
 5. Exploratory analysis - cross cultural variation in vocalisation-bonding relationship
 
@@ -648,12 +645,11 @@ ggplot(site_data, aes(x = mean_diff, y = site, color = group)) +
     axis.line    = element_blank()
   )
 
-dir.create("/Users/betty/Desktop/Manyvoices2/Results/Figure", 
-           recursive = TRUE, showWarnings = FALSE) #Change from hard-coding to stage 2 figure output directory (see Line 11 of 00_run_all.R: stage2figs<-'./stage2(full)/outputs/figures/')
+dir.create(stage2figs, recursive = TRUE, showWarnings = FALSE)
 ggsave(
-  "/Users/betty/Desktop/Manyvoices2/Results/Figure/site_bonding_diff.png",
+  file.path(stage2figs, "fig6_site_bonding_diff.png"),
   width = 10, height = 12, dpi = 300
-) #add figure number to output file name (e.g., "fig6site_bonding_diff.png") and change from hard-coding to stage 2 figure output directory (see Line 11 of 00_run_all.R: stage2figs<-'./stage2(full)/outputs/figures/' - etc. for rest of this file)
+)
 
 # Figure S5 - Raw difference（Post - Pre）
 site_data_raw <- mv2 %>%
@@ -722,7 +718,7 @@ ggplot(site_data_raw, aes(x = mean_diff, y = site, color = group)) +
   )
 
 ggsave(
-  "/Users/betty/Desktop/Manyvoices2/Results/Figure/site_bonding_raw_diff.png",
+  file.path(stage2figs, "figS5_site_bonding_raw_diff.png"),
   width = 10, height = 12, dpi = 300
 )
 
@@ -793,8 +789,9 @@ ggplot(site_data, aes(x = mean_diff, y = site, color = group)) +
     axis.line    = element_blank()
   )
 
+
 ggsave(
-  "/Users/betty/Desktop/Manyvoices2/Results/Figure/site_cohend_bonding_diff.png",
+  file.path(stage2figs, "figS6_site_cohend_bonding_diff.png"),
   width = 10, height = 12, dpi = 300
 )
 ```
@@ -1137,10 +1134,11 @@ plot_list[["R"]] <- plot_list[["R"]] + theme(legend.position = "none")
 combined <- plot_list[["S"]] / plot_list[["C"]] / plot_list[["R"]]
 
 ggsave(
-  filename = "/Users/betty/Desktop/Manyvoices2/Results/Figure/forest_all_groups_withgroupsize.png",
+  filename = file.path(stage2figs, "fig7_forest_all_groups.png"),
   plot = combined,
   width = 13, height = 17, dpi = 300
 )
+
 ```
 
 
@@ -1189,7 +1187,7 @@ for (g in c("S", "C", "R")) {
 corr_combined <- corr_list[["S"]] / corr_list[["C"]] / corr_list[["R"]]
 
 ggsave(
-  "/Users/betty/Desktop/Manyvoices2/Results/Figure/corr_all_groups.png",
+  file.path(stage2figs, "figS7_corr_all_groups.png"),
   plot = corr_combined,
   width = 7, height = 12, dpi = 300
 )
@@ -1495,12 +1493,10 @@ combined <- gridExtra::grid.arrange(
 )
 
 ggsave(
-  filename = "/Users/betty/Desktop/Manyvoices2/Results/Figure/PGG_bonding_combined.png",
+  filename = file.path(stage2figs, "fig8_PGG_bonding_combined.png"),
   plot = combined,
   width = 15, height = 5, dpi = 300
 )
-
-cat("\nDone. Figures saved.\n")
 ```
 
 
@@ -1607,7 +1603,7 @@ print(print_tbl)
 
 8. Expectancy effect 
 ```{r}
-mv2_cleaned_coding <- read.csv("/Users/betty/Desktop/Manyvoices2/mv2_cleaned_coding_merged.csv")
+mv2_cleaned_coding <- read.csv(file.path(stage2processed, "mv2_cleaned_coding_merged.csv"))
 
 mv2_cleaned_coding <- mv2_cleaned_coding %>%
   filter(
@@ -1798,12 +1794,6 @@ gender_dist_by_group
 
 9.2 Religion
 ```{r}
-mv2_cleaned_coding <- read.csv("/Users/betty/Desktop/Manyvoices2/mv2_cleaned_coding_merged.csv")
-mv2_cleaned_coding <- mv2_cleaned_coding %>%
-  filter(
-    pre_bonding_score <= 80,
-    Post_attention_check >= 50
-  ) 
 religion_overall <- mv2_cleaned_coding %>%
   count(recoded_religion) %>%
   mutate(
@@ -1890,7 +1880,7 @@ scale_reliability(mv2, final_vars, "Final-bonding")
 
 ```
 
-
+11. Figure S8
 ```{r}
 group_labels <- c("C" = "Conversation", "S" = "Singing", "R" = "Recitation")
 group_colors <- c("C" = "#D95F02", "S" = "#1B9E77", "R" = "#7570B3")
@@ -2017,7 +2007,7 @@ ggplot() +
   )
 
 ggsave(
-  "/Users/betty/Desktop/Manyvoices2/Results/Figure/groupsize_bonding_linear.png",
+  file.path(stage2figs, "figS8_groupsize_bonding_linear.png"),
   width = 12, height = 4.5, dpi = 300
 )
 ```
