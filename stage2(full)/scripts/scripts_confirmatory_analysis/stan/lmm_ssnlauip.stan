@@ -25,6 +25,8 @@ parameters {
 }
 
 transformed parameters {
+  // create the Fisher information matrix analytically based on the random effects 
+  // structure
   matrix[p, p] Lmd;
   Lmd = rep_matrix(0, p, p);
 
@@ -72,6 +74,9 @@ model {
   u_2 ~ normal(0, s_2);
   sgm ~ student_t(2, 0, 1000);
   be ~ multi_normal_prec(m, Lmd);
+  
+  // include the non-local prior term in addition to the likelihood term
+  // beta is added to make the code also usable for the stepping-stone sampling
   target += log((be_q - m_q)'*(be_q - m_q)/trace(Sgm_q)) + beta*normal_lpdf(y | mu, sgm);
 }
 

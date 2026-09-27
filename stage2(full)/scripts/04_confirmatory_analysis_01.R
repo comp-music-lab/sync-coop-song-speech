@@ -8,9 +8,11 @@ herepath_fig = "stage2(full)/outputs/figures"
 rawdatafilename = here(herepath, "data", "stage2data_20260314.csv")
 datafilename = here(herepath, "data", "keydata_long_20260314.csv")
 
+# create a file only including the bonding scores
 source(here(herepath, "helper", "h_keydata.R"))
 h_keydata(datafilename, rawdatafilename)
 
+# create a list including input for models (e.g., design matrix)
 source(here(herepath, "helper", "h_datalist.R"))
 datalist <- h_datalist(datafilename, rawdatafilename)
 
@@ -32,15 +34,20 @@ ppcsamplelist <- vector(mode="list", length=2)
 lnZ = c(0, 0)
 stanfile = c(here(herepath, "stan", "lmm_ssnlauip.stan"), here(herepath, "stan", "lmm_ssauip.stan"))
 model_H0 = c(0, 1)
-q = 2
+q = 2 # the dimension of fixed effects subject to the null hypothesis test
 numchains = 6
 rhat_theta <- vector(mode="list", length=2)
 
+# helper function for creating a list format data for the Stan models
+source(here(herepath, "helper", "h_standata_01.R"))
+
+# custom function evaluating the log likelihood of the half-t distribution
 h_lnhalft <- function(x, nu, s) {
   log(2) + log(gamma((nu+1)/2)) - log(gamma(nu/2)) - log(sqrt(nu*pi*s^2)) + (-(nu+1)/2)*log(1 + 1/nu*x^2/s^2)
 }
 
-source(here(herepath, "helper", "h_standata_01.R"))
+# custom function evaluating the log likelihood of other priors and likelihood
+# these custom functions are used for log marginal likelihood computation
 source(here(herepath, "helper", "h_Lmd.R"))
 source(here(herepath, "helper", "h_nlmvn.R"))
 source(here(herepath, "helper", "h_uipmvn.R"))
@@ -48,7 +55,11 @@ source(here(herepath, "helper", "h_mvnlik.R"))
 
 for(i in 1:2) {
   cat(paste(Sys.time(), ": i = ", i, "\n", sep=""))
+  
+  # generate data for the Stan models - the null model has the p-1 dimensional fixed effects
+  # while the alternative model has the p dimensional fixed effects
   standata <- h_standata(datalist, model_H0[i], q)
+  
   fit_pos <- stan(file = stanfile[i], data = standata, chains = numchains, 
                   warmup = 1000, iter = 2000, cores = 4, refresh = 0,
                   control = list(adapt_gamma=0.05, adapt_kappa=0.75, adapt_t0=10, adapt_delta=0.80, max_treedepth=10, adapt_term_buffer=50))
@@ -61,6 +72,9 @@ for(i in 1:2) {
   
   # Gather posterior samples
   if(model_H0[i] == 0) {
+    # Apply staking of Yao et al. (2022; JMLR) for a potential multimodality in 
+    # the posterior distribution due to the non-local prior and NUTS.
+    # https://github.com/yao-yl/Multimodal-stacking-code/tree/master
     source(here(herepath, "lib", "chain_stacking.R"))
     stan_model_object = stan_model(here(herepath, "lib", "stacking_opt.stan"))
     stack_obj = chain_stack(fits=fit_pos, lambda=1.0001, log_lik_char="log_lik")
@@ -111,6 +125,7 @@ for(i in 1:2) {
     )
   }
   
+  # Compute r-hat after stacking
   rhat_theta[[i]] = sapply(c("sgm", "s_1", "s_2", "be_1", "be_2", "be_3", "be_4", "g"),
                           function(varname) {
                             c(mean(possamplelist[[i]]$samples[possamplelist[[i]]$varname == varname]),
@@ -127,7 +142,7 @@ for(i in 1:2) {
             here(herepath, "interim_output", sprintf("confirmatory_analysis_01_stats_%d.csv", i)),
             row.names=TRUE)
   
-  # Bayes factor computation
+  # Log marginal likelihood computation using Chuu et al. (2021; AISTATS)'s method
   M = standata$M
   N = standata$N
   n = standata$n

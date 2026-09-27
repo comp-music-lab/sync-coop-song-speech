@@ -23,6 +23,8 @@ parameters {
 }
 
 transformed parameters {
+  // create the Fisher information matrix analytically based on the random effects 
+  // structure
   matrix[p, p] Lmd;
   Lmd = rep_matrix(0, p, p);
 
@@ -63,12 +65,16 @@ model {
   u_2 ~ normal(0, s_2);
   sgm ~ student_t(2, 0, 1000);
   be ~ multi_normal_prec(m, Lmd);
+  
+  // linear constraints were removed from the Stan code and moved to the R code
   /*
   if (pattern == 0) if(be[2] <= be[3]) target += negative_infinity();
   if (pattern == 1) if(be[2] > be[3]) target += negative_infinity();
   if (pattern == 2) if(be[2] <= be[4]) target += negative_infinity();
   if (pattern == 3) if(be[2] > be[4]) target += negative_infinity();
   */
+  
+  // beta is added to make the code also usable for the stepping-stone sampling
   target += beta*normal_lpdf(y | mu, sgm);
 }
 

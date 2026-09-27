@@ -8,9 +8,11 @@ herepath_fig = "stage2(full)/outputs/figures"
 rawdatafilename = here(herepath, "data", "stage2data_20260314.csv")
 datafilename = here(herepath, "data", "keydata_long_20260314.csv")
 
+# create a file only including the bonding scores
 source(here(herepath, "helper", "h_keydata.R"))
 h_keydata(datafilename, rawdatafilename)
 
+# create a list including input for models (e.g., design matrix)
 source(here(herepath, "helper", "h_datalist.R"))
 datalist <- h_datalist(datafilename, rawdatafilename)
 
@@ -19,6 +21,7 @@ library(rstan)
 library(rpart)
 library(posterior)
 
+# contrast matrices of the linear constraint hypotheses
 consmat = list(
   matrix(c(0, 1, -1, 0), ncol=1),
   matrix(c(0, -1, 1, 0), ncol=1),
@@ -40,10 +43,13 @@ numiter = c(2000, 20000, 2000, 20000)
 numchains = 4
 rhat_theta <- vector(mode="list", length=length(pattern))
 
+# custom function evaluating the log likelihood of the half-t distribution
 h_lnhalft <- function(x, nu, s) {
   log(2) + log(gamma((nu+1)/2)) - log(gamma(nu/2)) - log(sqrt(nu*pi*s^2)) + (-(nu+1)/2)*log(1 + 1/nu*x^2/s^2)
 }
 
+# custom function evaluating the log likelihood of other priors and likelihood
+# these custom functions are used for log marginal likelihood computation
 source(here(herepath, "helper", "h_standata_02.R"))
 source(here(herepath, "helper", "h_Lmd.R"))
 source(here(herepath, "helper", "h_uipmvn.R"))
@@ -96,7 +102,7 @@ for(i in c(2, 4, 1, 3)) {
   possamplelist[[i]]$varname <- sub("[", "_", possamplelist[[i]]$varname, fixed=TRUE)
   possamplelist[[i]]$varname <- sub("]", "", possamplelist[[i]]$varname, fixed=TRUE)
   
-  # Bayes factor computation
+  # Log marginal likelihood computation using Chuu et al. (2021; AISTATS)'s method
   sgm_pos = matrix(possamplelist[[i]]$samples[possamplelist[[i]]$varname == "sgm"], nrow=1)
   s_1_pos = matrix(possamplelist[[i]]$samples[possamplelist[[i]]$varname == "s_1"], nrow=1)
   s_2_pos = matrix(possamplelist[[i]]$samples[possamplelist[[i]]$varname == "s_2"], nrow=1)

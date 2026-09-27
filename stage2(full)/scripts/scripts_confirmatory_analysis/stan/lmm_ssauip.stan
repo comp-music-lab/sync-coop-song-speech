@@ -22,6 +22,8 @@ parameters {
 }
 
 transformed parameters {
+  // create the Fisher information matrix analytically based on the random effects 
+  // structure
   matrix[p, p] Lmd;
   Lmd = rep_matrix(0, p, p);
 
@@ -60,6 +62,8 @@ model {
   u_2 ~ normal(0, s_2);
   sgm ~ student_t(2, 0, 1000);
   be ~ multi_normal_prec(rep_vector(0, p), Lmd);
+  
+  // beta is added to make the code also usable for the stepping-stone sampling
   target += beta*normal_lpdf(y | mu, sgm);
 }
 
